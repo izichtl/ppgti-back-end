@@ -1,0 +1,6 @@
+{
+  "serviceName": "express-ts-boilerplate",
+  "serviceUrl": "",
+  "timezone": "Asia/Kolkata",
+  "logDir": "/var/log/express-app"
+}

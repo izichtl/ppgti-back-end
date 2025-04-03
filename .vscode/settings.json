@@ -1,0 +1,18 @@
+{
+    "prettier.semi": true,
+    "editor.formatOnSave": true,
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "workbench.tree.indent": 13,
+    "workbench.tree.renderIndentGuides": "always",
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "workbench.colorCustomizations": {
+      "activityBar.background": "#0a93d3",
+      "titleBar.activeBackground": "#0a93d3",
+      "titleBar.activeForeground": "#383838",
+      "tree.indentGuidesStroke": "#0a93d3",
+      "editor.lineHighlightBackground": "#F1E7FF",
+      "editorCursor.foreground": "#f8098d"
+    }
+  }
+  

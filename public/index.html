@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Express Boilerplate</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap">
+    <style>
+:root {
+    --primary-color: #76ABAE; /* A more vibrant green for a fresh look */
+    --secondary-color: #31363F; /* A darker green for depth */
+    --text-color: #222831; /* A dark blue-gray for better readability */
+    --bg-color: #EEEEEE; /* A light greenish background for a soothing feel */
+    --footer-bg: #31363F; /* A rich green for the footer, providing a strong contrast */
+}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            height: 100%;
+            margin: 0 auto;
+            padding: 2rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .cta {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.3s;
+            animation: fadeInUp 1.2s ease-out;
+        }
+
+        .cta:hover, .cta:focus {
+            background-color: var(--secondary-color);
+            transform: translateY(-3px);
+        }
+
+        .cta:active {
+            transform: translateY(1px);
+        }
+
+        footer {
+            width: 100%;
+            height: 100%;
+            background-color: var(--footer-bg);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-top: auto;
+        }
+
+        footer a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        footer a:hover, footer a:focus {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Express Boilerplate</h1>
+        <p>Congratulations! Your Express application is live and ready to serve requests.</p>
+        <p>Click below to check the API health and ensure everything is running smoothly.</p>
+        <a href="/api/health" class="cta" aria-label="Check API Health">Check API Health</a>
+    </div>
+
+    <footer>
+        <p>Made with ❤️ by <a href="https://www.linkedin.com/in/arnavsharma2711/" target="_blank" rel="noopener noreferrer">@arnavsharma2711</a> | &copy; 2025</p>
+    </footer>
+</body>
+</html>
+

@@ -1,0 +1,10 @@
+{
+  "PORT": "PORT",
+  "env": "NODE_ENV",
+  "serviceName": "SERVICE_NAME",
+  "timezone": "TIMEZONE",
+  "internalAccessToken": "INTERNAL_ACCESS_TOKEN",
+  "externalAccessToken": "EXTERNAL_ACCESS_TOKEN",
+  "redis": { "url": "REDIS_URL" },
+  "postgres": { "url": "POSTGRES_URL" }
+}
