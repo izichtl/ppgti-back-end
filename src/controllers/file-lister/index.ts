@@ -5,6 +5,7 @@ import {
 import { controllerWrapper } from '../../lib/controllerWrapper';
 import { getUserFromToken } from '../../middlewares/auth';
 import AppDataSource from '../../db';
+import supabaseSignedUrl from '../../storage';
 // import { signToken } from '../../middlewares/auth';
 // import { authGuard, getUserFromToken } from '../../middlewares/auth/index';
 
@@ -24,6 +25,14 @@ export const candidateFilerList = controllerWrapper(async (_req, _res) => {
   if (!AppDataSource.isInitialized) {
     await AppDataSource.initialize();
   }
+
+  const t = '11122233344/_sh_formulario_pontuacao_eh_NOTA_MARCO.pdf';
+  const url = await supabaseSignedUrl(t);
+  console.log(url, 'url-url');
+  console.log(url, 'url-url');
+  console.log(url, 'url-url');
+  console.log(url, 'url-url');
+  console.log(url, 'url-url');
 
   const candidateFiles = await AppDataSource.query(
     `
