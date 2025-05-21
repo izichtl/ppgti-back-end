@@ -1,40 +1,27 @@
-import AppDataSource from '../../db';
-
+import { supabase } from '../../db';
 export const updateCandidateDocument = async (
+  file: Express.Multer.File,
   cpf: string,
   column: string,
   value: string
 ) => {
-  const allowedColumns = new Set([
-    '_formulario_pontuacao_',
-    '_diploma_certificado_',
-    '_historico_graducao_',
-    '_quitacao_eleitoral_',
-    '_comprovante_residencia_',
-    '_quitacao_militar_',
-    '_declaracao_cota_ingresso_',
-    '_identidade_cpf_',
-    '_declaracao_cota_servidor_',
-  ]);
+  // TODO precisa atualizar e tratar os erros
+  const { data } = await supabase.storage
+    .from('registration-pdf')
+    .upload(value, file.buffer, {
+      contentType: file.mimetype,
+      upsert: true,
+    });
 
-  if (!allowedColumns.has(column)) {
-    throw new Error('Coluna inválida!');
-  }
-
-  const query = `
-    INSERT INTO candidate_documents (cpf, ${column})
-    VALUES ($1, $2)
-    ON CONFLICT (cpf)
-    DO UPDATE SET ${column} = EXCLUDED.${column};
-  `;
-
-  if (!AppDataSource.isInitialized) {
-    await AppDataSource.initialize();
-  }
-
-  await AppDataSource.query(query, [cpf, value]);
-
-  if (AppDataSource.isInitialized) {
-    await AppDataSource.destroy();
-  }
+  await supabase
+    .from('candidate_documents')
+    // @ts-expect-error
+    .upsert(
+      {
+        cpf: cpf,
+        [column]: data!.path as unknown as string,
+      },
+      { onConflict: 'cpf', returning: 'representation' }
+    );
+  return;
 };

@@ -14,7 +14,6 @@ import { signToken } from '../../middlewares/auth';
 // }
 
 export const candidateLogin = controllerWrapper(async (_req, _res) => {
-  // const token = _req.headers['authorization'];
   const { email, cpf } = _req.body;
   let token: string = '';
 
@@ -24,14 +23,13 @@ export const candidateLogin = controllerWrapper(async (_req, _res) => {
 
   const user = await AppDataSource.query(
     `
-    SELECT
-      *
-    FROM candidates
+    SELECT * FROM candidates
     WHERE email = $1 AND cpf = $2
   `,
     [email, cpf]
   );
 
+  console.log(user, 'user');
   if (user[0] === undefined) {
     return response.failure({
       message: 'User not found',

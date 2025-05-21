@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../../config';
 import { ResponsePayload } from '../response';
