@@ -1,43 +1,67 @@
+// @ts-nocheck
 import { response } from '../../middlewares/response';
 import { controllerWrapper } from '../../lib/controllerWrapper';
 import { signToken } from '../../middlewares/auth/index';
-import AppDataSource from '../../db';
+import AppDataSource, { supabase } from '../../db';
 
 export const candidateRegister = controllerWrapper(async (_req, _res) => {
   const { email, cpf, name } = _req.body;
   let token: string = '';
+  console.log(email, cpf, name);
 
-  if (!AppDataSource.isInitialized) {
-    await AppDataSource.initialize();
-  }
+  // Primeiro, tenta buscar o usuário
+  const { data: existingUser, error: fetchError } = await supabase
+    .from('candidates')
+    .select('*')
+    .eq('cpf', cpf)
+    .eq('email', email)
+    .maybeSingle();
 
-  const user = await AppDataSource.query(
-    `
-    SELECT
-      *
-    FROM candidates
-    WHERE email = $1 AND cpf = $2
-  `,
-    [email, cpf]
-  );
-
-  if (user[0] === undefined) {
-    const create = await AppDataSource.query(
-      `
-      INSERT INTO candidates (email, cpf, name) VALUES ($1, $2, $3) RETURNING *
-    `,
-      [email, cpf, name]
-    );
-    token = await signToken(create[0]);
+  if (fetchError) {
+    return response.failure({
+      message: 'Error on database',
+      status: 404,
+    });
+  } else if (existingUser) {
+    console.log('Usuário já existe:', existingUser);
+    token = await signToken(existingUser);
+    console.log(token);
+    response.success({
+      message: 'User found',
+      data: {
+        token,
+        islogin: true,
+      },
+      status: 201,
+    });
   } else {
-    token = await signToken(user[0]);
-  }
+    const { data: newUser, error: insertError } = await supabase
+      .from('candidates')
+      .insert([
+        {
+          email: email,
+          cpf: cpf,
+          social_name: name,
+        },
+      ]);
 
-  response.success({
-    message: 'Created',
-    data: {
-      token,
-    },
-    status: 201,
-  });
+    if (insertError) {
+      return response.failure({
+        message: 'Error on database',
+        status: 404,
+      });
+    } else {
+      console.log('Usuário inserido com sucesso:', newUser);
+      token = await signToken(newUser);
+      console.log(token);
+      response.success({
+        message: 'User created',
+        data: {
+          token,
+          islogin: false,
+        },
+        status: 201,
+      });
+    }
+  }
 });

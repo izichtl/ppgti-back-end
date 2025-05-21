@@ -1,58 +1,57 @@
-import {
-  response,
-  // ResponsePayload
-} from '../../middlewares/response';
+import { response, ResponsePayload } from '../../middlewares/response';
 import { controllerWrapper } from '../../lib/controllerWrapper';
-import { getUserFromToken } from '../../middlewares/auth';
-import AppDataSource from '../../db';
+import { supabase } from '../../db';
 import supabaseSignedUrl from '../../storage';
-// import { signToken } from '../../middlewares/auth';
-// import { authGuard, getUserFromToken } from '../../middlewares/auth/index';
+import { authGuard, getUserFromToken } from '../../middlewares/auth/index';
 
-// // guard-jwt
-// const guardResponse: ResponsePayload = authGuard(token as string);
-// if (guardResponse.error) {
-//   return response.failure(guardResponse);
-// }
-
+// TODO precisa fazer o tratamento de erro
 export const candidateFilerList = controllerWrapper(async (_req, _res) => {
   const token = _req.headers['authorization'];
-  console.log(token, 'tk');
+  // guard-jwt
+  const guardResponse: ResponsePayload = authGuard(token as string);
+  if (guardResponse.error) {
+    return response.failure(guardResponse);
+  }
 
   const user = await getUserFromToken(token as string);
   const { cpf } = user as any;
 
-  if (!AppDataSource.isInitialized) {
-    await AppDataSource.initialize();
-  }
+  // Primeiro, tenta buscar o usuário
+  // @ts-expect-error
+  const { data: candidateDocuments, error: fetchError } = await supabase
+    .from('candidate_documents')
+    .select('*')
+    .eq('cpf', cpf)
+    .maybeSingle();
 
-  const t = '11122233344/_sh_formulario_pontuacao_eh_NOTA_MARCO.pdf';
-  const url = await supabaseSignedUrl(t);
-  console.log(url, 'url-url');
-  console.log(url, 'url-url');
-  console.log(url, 'url-url');
-  console.log(url, 'url-url');
-  console.log(url, 'url-url');
-
-  const candidateFiles = await AppDataSource.query(
-    `
-    SELECT
-      *
-    FROM candidate_documents
-    WHERE cpf = $1
-  `,
-    [cpf]
-  );
-
-  if (candidateFiles[0] === undefined) {
+  if (candidateDocuments === undefined || candidateDocuments === null) {
     return response.failure({
       message: 'User data not found',
       status: 404,
     });
   }
 
+  const signedUrls = await Promise.all(
+    Object.entries(candidateDocuments).map(async ([key, value]) => {
+      if (typeof value === 'string') {
+        try {
+          const url = await supabaseSignedUrl(value);
+          return [key, url];
+        } catch (error) {
+          console.error(`Erro ao assinar ${key}:`, error);
+          return [key, null];
+        }
+      }
+      return [key, null];
+    })
+  );
+
+  const signedUrlsObject = Object.fromEntries(signedUrls);
+  signedUrlsObject.id = candidateDocuments.id;
+  signedUrlsObject.cpf = candidateDocuments.cpf;
+
   response.success({
     status: 200,
-    data: candidateFiles,
+    data: signedUrlsObject,
   });
 });
