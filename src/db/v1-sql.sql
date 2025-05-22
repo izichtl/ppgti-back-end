@@ -1,11 +1,12 @@
-
+-- // TODO AJUSTAR A TABELA CANDIDATES NO SQL 
+-- // TODO CRIAR SQL PARA INSERIR O MINIMO DE DADOS
 -- geral dos cadidatos
 -- 
 CREATE TABLE candidates (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
     cpf VARCHAR(20) NOT NULL UNIQUE,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(255),
     social_name VARCHAR(255),
     sex VARCHAR(10),
     registration_ VARCHAR(50),
@@ -21,6 +22,7 @@ CREATE TABLE candidates (
     cell_phone VARCHAR(20),
     phone VARCHAR(20),
     other_email VARCHAR(255),
+    quota VARCHAR(100),
     education_level VARCHAR(255),
     graduation_course VARCHAR(255),
     graduation_year VARCHAR(4),
@@ -143,3 +145,29 @@ CREATE TABLE applications_verification (
     
     final_status VARCHAR(50) -- Homologado, Recusado
 );
+
+
+-- 1. Criar a tabela quotas
+CREATE TABLE quotas (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    description VARCHAR(500)
+);
+
+-- 3. Inserir instâncias com descrição
+INSERT INTO quotas (name, description) VALUES
+  ('nao_optante', 'Não optante por sistema de cotas'),
+  ('afro_ou_inde', 'Autodeclarado preto, pardo ou indígena'),
+  ('pcd', 'Pessoa com deficiência'),
+  ('servidor_if', 'Servidor do Instituto Federal');
+
+-- 3. Adicionar quota_id na tabela candidates
+ALTER TABLE candidates
+ADD COLUMN quota_id INTEGER,
+ADD CONSTRAINT fk_quota
+  FOREIGN KEY (quota_id)
+  REFERENCES quotas(id);
+
+
+ALTER TABLE candidates
+ALTER COLUMN name DROP NOT NULL;

@@ -7,6 +7,7 @@ export interface ResponsePayload {
   data?: unknown;
   total_count?: number;
   error?: boolean;
+  code?: string;
 }
 
 const response: {
@@ -57,6 +58,7 @@ const responseMiddleware = (
   response.failure = (payload: ResponsePayload): void => {
     res.status(payload.status || 500).json({
       success: false,
+      code: payload.code || 'INTERNAL_SERVER_ERROR',
       message: payload.message || 'An internal server error occurred',
       data: payload.data,
     });
