@@ -28,11 +28,13 @@ expressApp.get('/', (_req, res) => {
 // Importing API routes
 import apiRoutes from './routes';
 import authRoutes from './routes/auth/index';
+import candidateRoutes from './routes/candidate/index';
 import fileManagerRoutes from './routes/file-manager/index';
 import swaggerRouters from './swagger';
 
 expressApp.use('/api', apiRoutes);
 expressApp.use('/api', authRoutes);
+expressApp.use('/api', candidateRoutes);
 expressApp.use('/api', fileManagerRoutes);
 expressApp.use('/api', swaggerRouters);
 
