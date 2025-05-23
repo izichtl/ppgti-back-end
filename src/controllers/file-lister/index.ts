@@ -16,18 +16,35 @@ export const candidateFilerList = controllerWrapper(async (_req, _res) => {
   const user = await getUserFromToken(token as string);
   const { cpf } = user as any;
 
-  // Primeiro, tenta buscar o usuário
-  // @ts-expect-error
+  // Tenta buscar o usuário
   const { data: candidateDocuments, error: fetchError } = await supabase
     .from('candidate_documents')
     .select('*')
     .eq('cpf', cpf)
     .maybeSingle();
 
-  if (candidateDocuments === undefined || candidateDocuments === null) {
+  if (fetchError) {
     return response.failure({
-      message: 'User data not found',
-      status: 404,
+      message: 'Erro ao buscar usuário',
+      status: 500,
+    });
+  }
+
+  if (!candidateDocuments) {
+    // Registro não existe, insere um novo com o CPF
+    const { data: newInsert, error: insertError } = await supabase
+      .from('candidate_documents')
+      .insert([{ cpf }]);
+
+    if (insertError) {
+      return response.failure({
+        message: 'Erro ao criar registro do usuário',
+        status: 500,
+      });
+    }
+    response.success({
+      status: 200,
+      data: newInsert,
     });
   }
 

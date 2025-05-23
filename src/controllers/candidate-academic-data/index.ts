@@ -16,7 +16,7 @@ export const candidateAcademicUpdater = controllerWrapper(
     const { cpf, email } = user as any;
 
     const {
-      title,
+      education_level,
       graduation_course,
       graduation_year,
       graduation_institution,
@@ -29,7 +29,7 @@ export const candidateAcademicUpdater = controllerWrapper(
     const { error: updateError } = await supabase
       .from('candidates')
       .update({
-        title,
+        education_level,
         graduation_course,
         graduation_year,
         graduation_institution,

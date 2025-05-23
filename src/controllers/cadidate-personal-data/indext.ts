@@ -12,9 +12,9 @@ export const candidateUpdater = controllerWrapper(async (_req, _res) => {
   }
   const user = await getUserFromToken(token as string);
   const { cpf, email } = user as any;
-
+  console.log('user', user);
   let {
-    social_name,
+    name,
     sex,
     registration_,
     registration_state,
@@ -50,7 +50,7 @@ export const candidateUpdater = controllerWrapper(async (_req, _res) => {
   const { error: updateError } = await supabase
     .from('candidates')
     .update({
-      social_name,
+      name,
       sex,
       registration_,
       registration_state,

@@ -3,11 +3,14 @@ import { response } from '../../middlewares/response';
 import { controllerWrapper } from '../../lib/controllerWrapper';
 import { signToken } from '../../middlewares/auth/index';
 import AppDataSource, { supabase } from '../../db';
+import { sanitizeCPF } from '../../utils/string-format';
 
 export const candidateRegister = controllerWrapper(async (_req, _res) => {
   const { email, cpf, social_name } = _req.body;
   let token: string = '';
   console.log('body', _req.body);
+
+  const sanitizeCPFValue = sanitizeCPF(cpf);
   const { data: existingUser, error: fetchError } = await supabase
     .from('candidates')
     .select(
@@ -18,7 +21,7 @@ export const candidateRegister = controllerWrapper(async (_req, _res) => {
       )
     `
     )
-    .eq('cpf', cpf)
+    .eq('cpf', sanitizeCPFValue)
     .eq('email', email)
     .maybeSingle();
   if (fetchError) {
@@ -48,7 +51,7 @@ export const candidateRegister = controllerWrapper(async (_req, _res) => {
       .insert([
         {
           email: email,
-          cpf: cpf,
+          cpf: sanitizeCPFValue,
           social_name: social_name,
         },
       ]);
