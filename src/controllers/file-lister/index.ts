@@ -31,7 +31,6 @@ export const candidateFilerList = controllerWrapper(async (_req, _res) => {
   }
 
   if (!candidateDocuments) {
-    // Registro não existe, insere um novo com o CPF
     const { data: newInsert, error: insertError } = await supabase
       .from('candidate_documents')
       .insert([{ cpf }]);

@@ -31,7 +31,7 @@ export const candidateUpdater = controllerWrapper(async (_req, _res) => {
     other_email,
     quota,
   } = _req.body;
-
+  console.log('body', _req.body);
   const { data: quotaData, error: quotaError } = await supabase
     .from('quotas')
     .select('id')
