@@ -47,7 +47,7 @@ export const candidateUpdater = controllerWrapper(async (_req, _res) => {
 
   const quota_id = quotaData.id;
 
-  const { error: updateError } = await supabase
+  const { data, error: updateError } = await supabase
     .from('candidates')
     .update({
       name,
@@ -69,9 +69,8 @@ export const candidateUpdater = controllerWrapper(async (_req, _res) => {
     })
     .eq('cpf', cpf)
     .eq('email', email);
-
+  console.error(data, 'data');
   if (updateError) {
-    console.error(updateError);
     return response.failure({
       message: 'Erro ao atualizar dados pessoais',
       status: 400,
