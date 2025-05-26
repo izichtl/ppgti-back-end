@@ -34,8 +34,7 @@ export async function getUserFromToken(
 export function isTokenValid(token: string): boolean {
   try {
     const secret = Buffer.from(JWT_SECRET, 'base64');
-    const a = jwt.verify(token.replace('Bearer ', ''), secret);
-    console.log(a, 'a');
+    jwt.verify(token.replace('Bearer ', ''), secret);
     return false;
   } catch (error) {
     return true;
