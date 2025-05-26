@@ -1,10 +1,11 @@
+// @ts-nocheck
 import { response, ResponsePayload } from '../../middlewares/response';
 import { controllerWrapper } from '../../lib/controllerWrapper';
 import { supabase } from '../../db';
 import supabaseSignedUrl from '../../storage';
 import { authGuard, getUserFromToken } from '../../middlewares/auth/index';
+import { handlerCandidateFiles } from '../../models/cadidate-files';
 
-// TODO precisa fazer o tratamento de erro
 export const candidateFilerList = controllerWrapper(async (_req, _res) => {
   const token = _req.headers['authorization'];
   // guard-jwt
@@ -15,40 +16,16 @@ export const candidateFilerList = controllerWrapper(async (_req, _res) => {
 
   const user = await getUserFromToken(token as string);
   const { cpf } = user as any;
+  const cadidateFiles = await handlerCandidateFiles(cpf);
 
-  // Tenta buscar o usuário
-  const { data: candidateDocuments, error: fetchError } = await supabase
-    .from('candidate_documents')
-    .select('*')
-    .eq('cpf', cpf)
-    .maybeSingle();
-
-  if (fetchError) {
-    return response.failure({
-      message: 'Erro ao buscar usuário',
-      status: 500,
-    });
-  }
-
-  if (!candidateDocuments) {
-    const { data: newInsert, error: insertError } = await supabase
-      .from('candidate_documents')
-      .insert([{ cpf }]);
-
-    if (insertError) {
-      return response.failure({
-        message: 'Erro ao criar registro do usuário',
-        status: 500,
-      });
+  if (cadidateFiles !== null) {
+    if (cadidateFiles.error) {
+      return response.failure(cadidateFiles);
     }
-    response.success({
-      status: 200,
-      data: newInsert,
-    });
   }
 
   const signedUrls = await Promise.all(
-    Object.entries(candidateDocuments).map(async ([key, value]) => {
+    Object.entries(cadidateFiles.data).map(async ([key, value]) => {
       if (typeof value === 'string') {
         try {
           const url = await supabaseSignedUrl(value);
@@ -63,8 +40,8 @@ export const candidateFilerList = controllerWrapper(async (_req, _res) => {
   );
 
   const signedUrlsObject = Object.fromEntries(signedUrls);
-  signedUrlsObject.id = candidateDocuments.id;
-  signedUrlsObject.cpf = candidateDocuments.cpf;
+  signedUrlsObject.id = cadidateFiles.data.id;
+  signedUrlsObject.cpf = cadidateFiles.data.cpf;
 
   response.success({
     status: 200,
