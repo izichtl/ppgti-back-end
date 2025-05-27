@@ -6,7 +6,7 @@ export const verifyComissaoExistence = async (
   email: string,
   matricula: string,
   cpf: string
-): Promise<ResponsePayload | null> => {
+): Promise<boolean> => {
   const { data, error } = await supabase
     .from("committee_members")
     .select("*")
@@ -18,24 +18,11 @@ export const verifyComissaoExistence = async (
   console.log(data, "data");
   console.log(error, "error");
 
-  if (error !== null) {
-    return { error: true, message: "Error on database", status: 404 };
+  if (!data || error !== null) {
+    return false;
   }
 
-  if (data !== null) {
-    console.log("comissao-login-token", data);
-    const token = await signToken(data);
-    return {
-      error: false,
-      message: "Committee user found",
-      status: 200,
-      data: {
-        token,
-        islogin: true,
-      },
-    };
-  }
-  return null;
+  return true;
 };
 
 export const handlerComissaoRegister = async (
@@ -58,7 +45,6 @@ export const handlerComissaoRegister = async (
     ])
     .select();
 
-  console.log(error, data);
   if (error !== null) {
     const { code } = error;
     if (code === "23505") {
@@ -66,13 +52,12 @@ export const handlerComissaoRegister = async (
         error: true,
         message: "Email, matricula or CPF already registered",
         status: 409,
-        code: error.code,
       };
     } else {
       return {
         error: true,
         message: "Error on database",
-        status: 404,
+        status: 500,
       };
     }
   }

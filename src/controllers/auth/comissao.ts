@@ -40,7 +40,7 @@ export const comissaoLogin = controllerWrapper(async (_req, _res) => {
 
   console.log(user, "comissao user");
 
-  if (user[0] === undefined) {
+  if (!user) {
     return response.failure({
       message: "Committee user not found or invalid credentials",
       status: 404,
@@ -78,22 +78,22 @@ export const comissaoRegister = controllerWrapper(async (_req, _res) => {
   if (authorizationCode !== envAuthorizationCode) {
     return response.failure({
       message: "Invalid authorization code",
-      status: 401,
+      status: 403,
     });
   }
 
-  const verifyUser = await verifyComissaoExistence(
+  const userAlreadyExists = await verifyComissaoExistence(
     email,
     matricula,
     sanitizeCPFValue
   );
 
-  if (verifyUser !== null) {
-    if (verifyUser.error) {
-      return response.failure(verifyUser);
-    } else {
-      return response.success(verifyUser);
-    }
+  if (userAlreadyExists) {
+    return response.failure({
+      message: "Committee user already exists",
+      status: 409,
+      code: "CONFLICT",
+    });
   }
 
   const registerUser = await handlerComissaoRegister(
@@ -106,14 +106,25 @@ export const comissaoRegister = controllerWrapper(async (_req, _res) => {
 
   if (registerUser) {
     if (registerUser.error) {
-      return response.failure(registerUser);
+      return response.failure({
+        message: registerUser.message,
+        status: registerUser.status,
+        code: registerUser.code || "INTERNAL_SERVER_ERROR",
+      });
     } else {
-      return response.success(registerUser);
+      return response.success({
+        status: registerUser.status,
+        message: "Committee user registered successfully",
+        data: {
+          token: (registerUser.data as any)?.token || null,
+        },
+      });
     }
   }
 
   return response.failure({
     message: "Failed to register committee user",
     status: 500,
+    code: "INTERNAL_SERVER_ERROR",
   });
 });
