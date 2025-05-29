@@ -85,14 +85,21 @@ CREATE TABLE committee_members (
 -- vai ser definido pelo intervalo de data
 CREATE TABLE selection_processes (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    start_date DATE,
+    end_date DATE,
+    application_deadline DATE,
+    result_date DATE,
+    documents_required JSONB DEFAULT '[]'::jsonb,
+    evaluation_criteria TEXT,
+    contact_info TEXT,
+    status VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'closed')),
     program VARCHAR(100),
     year VARCHAR(20),
     semester VARCHAR(20),
-    edital_link VARCHAR(255),
-    start_date DATE,
-    end_date DATE
-    -- aqui vai colocar a data de homologação?
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 
