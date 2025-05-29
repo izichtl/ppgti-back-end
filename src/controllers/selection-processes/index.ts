@@ -116,7 +116,7 @@ export const createSelectionProcess = controllerWrapper(async (_req, _res) => {
 
     const processData = {
       ...result[0],
-      documents_required: JSON.parse(result[0].documents_required || '[]'),
+      documents_required: result[0].documents_required || [],
     };
 
     response.success({
@@ -146,10 +146,11 @@ export const getSelectionProcesses = controllerWrapper(async (_req, _res) => {
       `
     );
 
-    // Parse documents_required for each process
+    console.log('processes', processes);
+
     const processesWithParsedDocs = processes.map((process: any) => ({
       ...process,
-      documents_required: JSON.parse(process.documents_required || '[]'),
+      documents_required: process.documents_required || [],
     }));
 
     response.success({
@@ -193,7 +194,7 @@ export const getSelectionProcessById = controllerWrapper(async (_req, _res) => {
     // Parse documents_required back to array
     const processData = {
       ...process[0],
-      documents_required: JSON.parse(process[0].documents_required || '[]'),
+      documents_required: process[0].documents_required || [],
     };
 
     response.success({
@@ -287,10 +288,9 @@ export const updateSelectionProcess = controllerWrapper(async (_req, _res) => {
       updateValues
     );
 
-    // Parse documents_required back to array
     const processData = {
       ...result[0],
-      documents_required: JSON.parse(result[0].documents_required || '[]'),
+      documents_required: result[0].documents_required || [],
     };
 
     response.success({
