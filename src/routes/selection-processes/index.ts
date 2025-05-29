@@ -20,9 +20,43 @@ const router = express.Router();
  *         id:
  *           type: integer
  *           description: Unique identifier for the selection process
- *         name:
+ *         title:
  *           type: string
- *           description: Name of the selection process
+ *           description: Title of the selection process
+ *         description:
+ *           type: string
+ *           description: Detailed description of the selection process
+ *         start_date:
+ *           type: string
+ *           format: date
+ *           description: Start date of the selection process
+ *         end_date:
+ *           type: string
+ *           format: date
+ *           description: End date of the selection process
+ *         application_deadline:
+ *           type: string
+ *           format: date
+ *           description: Application deadline date
+ *         result_date:
+ *           type: string
+ *           format: date
+ *           description: Date when results will be announced
+ *         documents_required:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: List of required documents
+ *         evaluation_criteria:
+ *           type: string
+ *           description: Evaluation criteria for the selection process
+ *         contact_info:
+ *           type: string
+ *           description: Contact information for inquiries
+ *         status:
+ *           type: string
+ *           enum: [draft, published, closed]
+ *           description: Current status of the selection process
  *         program:
  *           type: string
  *           description: Program name (e.g., "Mestrado", "Doutorado")
@@ -32,32 +66,73 @@ const router = express.Router();
  *         semester:
  *           type: string
  *           description: Semester of the selection process
- *         edital_link:
+ *         created_at:
  *           type: string
- *           format: uri
- *           description: Link to the official edital document
- *         start_date:
+ *           format: date-time
+ *           description: Creation timestamp
+ *         updated_at:
  *           type: string
- *           format: date
- *           description: Start date of the application period
- *         end_date:
- *           type: string
- *           format: date
- *           description: End date of the application period
+ *           format: date-time
+ *           description: Last update timestamp
  *     CreateSelectionProcess:
  *       type: object
  *       required:
- *         - name
+ *         - title
+ *         - start_date
+ *         - end_date
+ *         - application_deadline
+ *         - result_date
  *         - program
  *         - year
  *         - semester
- *         - start_date
- *         - end_date
  *       properties:
- *         name:
+ *         title:
  *           type: string
- *           description: Name of the selection process
+ *           description: Title of the selection process
  *           example: "Processo Seletivo PPGTI 2024/1"
+ *         description:
+ *           type: string
+ *           description: Detailed description of the selection process
+ *           example: "Processo seletivo para o Programa de Pós-Graduação em Tecnologia da Informação"
+ *         start_date:
+ *           type: string
+ *           format: date
+ *           description: Start date of the selection process
+ *           example: "2024-01-15"
+ *         end_date:
+ *           type: string
+ *           format: date
+ *           description: End date of the selection process
+ *           example: "2024-03-15"
+ *         application_deadline:
+ *           type: string
+ *           format: date
+ *           description: Application deadline date
+ *           example: "2024-02-15"
+ *         result_date:
+ *           type: string
+ *           format: date
+ *           description: Date when results will be announced
+ *           example: "2024-03-01"
+ *         documents_required:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: List of required documents
+ *           example: ["Diploma", "Histórico acadêmico", "Comprovante de residência"]
+ *         evaluation_criteria:
+ *           type: string
+ *           description: Evaluation criteria for the selection process
+ *           example: "Análise de currículo (40%), prova escrita (40%), entrevista (20%)"
+ *         contact_info:
+ *           type: string
+ *           description: Contact information for inquiries
+ *           example: "ppgti@ifes.edu.br | (27) 3357-7500"
+ *         status:
+ *           type: string
+ *           enum: [draft, published, closed]
+ *           description: Current status of the selection process
+ *           example: "draft"
  *         program:
  *           type: string
  *           description: Program name
@@ -70,21 +145,6 @@ const router = express.Router();
  *           type: string
  *           description: Semester of the selection process
  *           example: "1"
- *         edital_link:
- *           type: string
- *           format: uri
- *           description: Link to the official edital document
- *           example: "https://example.com/edital.pdf"
- *         start_date:
- *           type: string
- *           format: date
- *           description: Start date of the application period
- *           example: "2024-01-15"
- *         end_date:
- *           type: string
- *           format: date
- *           description: End date of the application period
- *           example: "2024-02-15"
  */
 
 /**
@@ -239,9 +299,43 @@ router.get('/v1/selection-processes/:id', getSelectionProcessById);
  *           schema:
  *             type: object
  *             properties:
- *               name:
+ *               title:
  *                 type: string
- *                 description: Name of the selection process
+ *                 description: Title of the selection process
+ *               description:
+ *                 type: string
+ *                 description: Detailed description of the selection process
+ *               start_date:
+ *                 type: string
+ *                 format: date
+ *                 description: Start date of the selection process
+ *               end_date:
+ *                 type: string
+ *                 format: date
+ *                 description: End date of the selection process
+ *               application_deadline:
+ *                 type: string
+ *                 format: date
+ *                 description: Application deadline date
+ *               result_date:
+ *                 type: string
+ *                 format: date
+ *                 description: Date when results will be announced
+ *               documents_required:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: List of required documents
+ *               evaluation_criteria:
+ *                 type: string
+ *                 description: Evaluation criteria for the selection process
+ *               contact_info:
+ *                 type: string
+ *                 description: Contact information for inquiries
+ *               status:
+ *                 type: string
+ *                 enum: [draft, published, closed]
+ *                 description: Current status of the selection process
  *               program:
  *                 type: string
  *                 description: Program name
@@ -251,18 +345,6 @@ router.get('/v1/selection-processes/:id', getSelectionProcessById);
  *               semester:
  *                 type: string
  *                 description: Semester of the selection process
- *               edital_link:
- *                 type: string
- *                 format: uri
- *                 description: Link to the official edital document
- *               start_date:
- *                 type: string
- *                 format: date
- *                 description: Start date of the application period
- *               end_date:
- *                 type: string
- *                 format: date
- *                 description: End date of the application period
  *     responses:
  *       200:
  *         description: Selection process updated successfully

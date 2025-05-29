@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { getUserFromToken, authGuard } from './index';
-import { response } from '../response';
+import { response, ResponsePayload } from '../response';
 import AppDataSource from '../../db';
 
 interface AuthenticatedRequest extends Request {
@@ -14,55 +14,45 @@ interface AuthenticatedRequest extends Request {
 }
 
 export const committeeAuthMiddleware = async (
-  req: AuthenticatedRequest,
+  _req: AuthenticatedRequest,
   _res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
-    const authHeader = req.headers.authorization;
+    const token = _req.headers['authorization'];
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      response.unauthorized({
-        message: 'Authorization token required',
-        status: 401,
-      });
-      return;
-    }
+    console.log('token', token);
 
-    const token = authHeader;
+    const guardResponse: ResponsePayload = authGuard(token as string);
 
-    // Validate token
-    const guardResponse = authGuard(token);
+    console.log('guardResponse', guardResponse);
+
     if (guardResponse.error) {
-      response.unauthorized({
-        message: guardResponse.message,
-        status: guardResponse.status,
-      });
-      return;
+      return response.unauthorized(guardResponse);
     }
 
-    // Get user from token
-    const decoded = await getUserFromToken(token);
+    const user = await getUserFromToken(token as string);
 
-    if (!decoded || typeof decoded === 'string') {
-      response.unauthorized({
+    console.log('user', user);
+
+    if (!user) {
+      return response.unauthorized({
         message: 'Invalid token',
         status: 401,
       });
-      return;
     }
 
-    // Verify user is a committee member
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize();
     }
 
     const committeeUser = await AppDataSource.query(
       `SELECT * FROM committee_members WHERE id = $1`,
-      [(decoded as any).id]
+      [(user as any).id]
     );
 
     if (!committeeUser || committeeUser.length === 0) {
+      console.log('Access denied. Committee member required.');
       response.unauthorized({
         message: 'Access denied. Committee member required.',
         status: 403,
@@ -70,8 +60,6 @@ export const committeeAuthMiddleware = async (
       return;
     }
 
-    // Add user to request object
-    req.user = committeeUser[0];
     next();
   } catch (error) {
     console.error('Committee auth middleware error:', error);

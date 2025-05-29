@@ -3,18 +3,30 @@ import { controllerWrapper } from '../../lib/controllerWrapper';
 import AppDataSource from '../../db';
 import { z } from 'zod';
 
+const statusEnum = z.enum(['draft', 'published', 'closed']);
+
 const createSelectionProcessSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  program: z.string().min(1, 'Program is required'),
-  year: z.string().min(4, 'Year must be at least 4 characters'),
-  semester: z.string().min(1, 'Semester is required'),
-  edital_link: z.string().url('Edital link must be a valid URL').optional(),
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
   start_date: z.string().refine((date) => !isNaN(Date.parse(date)), {
     message: 'Start date must be a valid date',
   }),
   end_date: z.string().refine((date) => !isNaN(Date.parse(date)), {
     message: 'End date must be a valid date',
   }),
+  application_deadline: z.string().refine((date) => !isNaN(Date.parse(date)), {
+    message: 'Application deadline must be a valid date',
+  }),
+  result_date: z.string().refine((date) => !isNaN(Date.parse(date)), {
+    message: 'Result date must be a valid date',
+  }),
+  documents_required: z.array(z.string()).default([]),
+  evaluation_criteria: z.string().optional(),
+  contact_info: z.string().optional(),
+  status: statusEnum.default('draft'),
+  program: z.string().min(1, 'Program is required'),
+  year: z.string().min(4, 'Year must be at least 4 characters'),
+  semester: z.string().min(1, 'Semester is required'),
 });
 
 const updateSelectionProcessSchema = createSelectionProcessSchema.partial();
@@ -29,16 +41,31 @@ export type UpdateSelectionProcessProps = z.infer<
 export const createSelectionProcess = controllerWrapper(async (_req, _res) => {
   const validatedData = createSelectionProcessSchema.parse(_req.body);
 
-  const { name, program, year, semester, edital_link, start_date, end_date } =
-    validatedData;
+  const {
+    title,
+    description,
+    start_date,
+    end_date,
+    application_deadline,
+    result_date,
+    documents_required,
+    evaluation_criteria,
+    contact_info,
+    status,
+    program,
+    year,
+    semester,
+  } = validatedData;
 
   if (!AppDataSource.isInitialized) {
     await AppDataSource.initialize();
   }
 
-  // Validate that end_date is after start_date
+  // Validate date logic
   const startDate = new Date(start_date);
   const endDate = new Date(end_date);
+  const appDeadline = new Date(application_deadline);
+  const resultDate = new Date(result_date);
 
   if (endDate <= startDate) {
     return response.invalid({
@@ -47,20 +74,57 @@ export const createSelectionProcess = controllerWrapper(async (_req, _res) => {
     });
   }
 
+  if (appDeadline <= startDate) {
+    return response.invalid({
+      message: 'Application deadline must be after start date',
+      status: 400,
+    });
+  }
+
+  if (resultDate <= appDeadline) {
+    return response.invalid({
+      message: 'Result date must be after application deadline',
+      status: 400,
+    });
+  }
+
   try {
     const result = await AppDataSource.query(
       `
-      INSERT INTO selection_processes (name, program, year, semester, edital_link, start_date, end_date)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      INSERT INTO selection_processes (
+        title, description, start_date, end_date, application_deadline, 
+        result_date, documents_required, evaluation_criteria, contact_info, status, program, year, semester
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
       RETURNING *
       `,
-      [name, program, year, semester, edital_link || null, start_date, end_date]
+      [
+        title,
+        description || null,
+        start_date,
+        end_date,
+        application_deadline,
+        result_date,
+        JSON.stringify(documents_required),
+        evaluation_criteria || null,
+        contact_info || null,
+        status,
+        program,
+        year,
+        semester,
+      ]
     );
+
+    // Parse documents_required back to array for response
+    const processData = {
+      ...result[0],
+      documents_required: JSON.parse(result[0].documents_required || '[]'),
+    };
 
     response.success({
       status: 201,
       message: 'Selection process created successfully',
-      data: result[0],
+      data: processData,
     });
   } catch (error) {
     console.error('Error creating selection process:', error);
@@ -80,14 +144,20 @@ export const getSelectionProcesses = controllerWrapper(async (_req, _res) => {
     const processes = await AppDataSource.query(
       `
       SELECT * FROM selection_processes
-      ORDER BY id DESC
+      ORDER BY created_at DESC, id
       `
     );
+
+    // Parse documents_required for each process
+    const processesWithParsedDocs = processes.map((process: any) => ({
+      ...process,
+      documents_required: JSON.parse(process.documents_required || '[]'),
+    }));
 
     response.success({
       status: 200,
       message: 'Selection processes retrieved successfully',
-      data: processes,
+      data: processesWithParsedDocs,
       total_count: processes.length,
     });
   } catch (error) {
@@ -122,10 +192,16 @@ export const getSelectionProcessById = controllerWrapper(async (_req, _res) => {
       });
     }
 
+    // Parse documents_required back to array
+    const processData = {
+      ...process[0],
+      documents_required: JSON.parse(process[0].documents_required || '[]'),
+    };
+
     response.success({
       status: 200,
       message: 'Selection process retrieved successfully',
-      data: process[0],
+      data: processData,
     });
   } catch (error) {
     console.error('Error retrieving selection process:', error);
@@ -157,7 +233,7 @@ export const updateSelectionProcess = controllerWrapper(async (_req, _res) => {
     });
   }
 
-  // Validate dates if both are provided
+  // Validate dates if provided
   if (validatedData.start_date && validatedData.end_date) {
     const startDate = new Date(validatedData.start_date);
     const endDate = new Date(validatedData.end_date);
@@ -177,8 +253,13 @@ export const updateSelectionProcess = controllerWrapper(async (_req, _res) => {
 
   for (const [key, value] of Object.entries(validatedData)) {
     if (value !== undefined) {
-      updateFields.push(`${key} = $${paramIndex}`);
-      updateValues.push(value);
+      if (key === 'documents_required') {
+        updateFields.push(`${key} = $${paramIndex}`);
+        updateValues.push(JSON.stringify(value));
+      } else {
+        updateFields.push(`${key} = $${paramIndex}`);
+        updateValues.push(value);
+      }
       paramIndex++;
     }
   }
@@ -189,6 +270,11 @@ export const updateSelectionProcess = controllerWrapper(async (_req, _res) => {
       status: 400,
     });
   }
+
+  // Add updated_at field
+  updateFields.push(`updated_at = $${paramIndex}`);
+  updateValues.push(new Date());
+  paramIndex++;
 
   updateValues.push(id);
 
@@ -203,10 +289,16 @@ export const updateSelectionProcess = controllerWrapper(async (_req, _res) => {
       updateValues
     );
 
+    // Parse documents_required back to array
+    const processData = {
+      ...result[0],
+      documents_required: JSON.parse(result[0].documents_required || '[]'),
+    };
+
     response.success({
       status: 200,
       message: 'Selection process updated successfully',
-      data: result[0],
+      data: processData,
     });
   } catch (error) {
     console.error('Error updating selection process:', error);
