@@ -6,27 +6,27 @@ import { z } from 'zod';
 const statusEnum = z.enum(['draft', 'published', 'closed']);
 
 const createSelectionProcessSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
+  title: z.string().min(1, 'Título é obrigatório'),
   description: z.string().optional(),
   start_date: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: 'Start date must be a valid date',
+    message: 'Data de início deve ser uma data válida',
   }),
   end_date: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: 'End date must be a valid date',
+    message: 'Data de fim deve ser uma data válida',
   }),
   application_deadline: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: 'Application deadline must be a valid date',
+    message: 'Prazo de inscrição deve ser uma data válida',
   }),
   result_date: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: 'Result date must be a valid date',
+    message: 'Data do resultado deve ser uma data válida',
   }),
   documents_required: z.array(z.string()).default([]),
   evaluation_criteria: z.string().optional(),
   contact_info: z.string().optional(),
   status: statusEnum.default('draft'),
-  program: z.string().min(1, 'Program is required'),
-  year: z.string().min(4, 'Year must be at least 4 characters'),
-  semester: z.string().min(1, 'Semester is required'),
+  program: z.string().min(1, 'Programa é obrigatório'),
+  year: z.string().min(4, 'Ano deve ter pelo menos 4 caracteres'),
+  semester: z.string().min(1, 'Semestre é obrigatório'),
 });
 
 const updateSelectionProcessSchema = createSelectionProcessSchema.partial();
@@ -61,7 +61,6 @@ export const createSelectionProcess = controllerWrapper(async (_req, _res) => {
     await AppDataSource.initialize();
   }
 
-  // Validate date logic
   const startDate = new Date(start_date);
   const endDate = new Date(end_date);
   const appDeadline = new Date(application_deadline);
@@ -69,21 +68,21 @@ export const createSelectionProcess = controllerWrapper(async (_req, _res) => {
 
   if (endDate <= startDate) {
     return response.invalid({
-      message: 'End date must be after start date',
+      message: 'Data de fim deve ser posterior à data de início',
       status: 400,
     });
   }
 
   if (appDeadline <= startDate) {
     return response.invalid({
-      message: 'Application deadline must be after start date',
+      message: 'Prazo de inscrição deve ser posterior à data de início',
       status: 400,
     });
   }
 
   if (resultDate <= appDeadline) {
     return response.invalid({
-      message: 'Result date must be after application deadline',
+      message: 'Data do resultado deve ser posterior ao prazo de inscrição',
       status: 400,
     });
   }
@@ -115,7 +114,6 @@ export const createSelectionProcess = controllerWrapper(async (_req, _res) => {
       ]
     );
 
-    // Parse documents_required back to array for response
     const processData = {
       ...result[0],
       documents_required: JSON.parse(result[0].documents_required || '[]'),
@@ -123,13 +121,13 @@ export const createSelectionProcess = controllerWrapper(async (_req, _res) => {
 
     response.success({
       status: 201,
-      message: 'Selection process created successfully',
+      message: 'Processo seletivo criado com sucesso',
       data: processData,
     });
   } catch (error) {
-    console.error('Error creating selection process:', error);
+    console.error('Erro ao criar processo seletivo:', error);
     response.failure({
-      message: 'Failed to create selection process',
+      message: 'Falha ao criar processo seletivo',
       status: 500,
     });
   }
@@ -156,14 +154,14 @@ export const getSelectionProcesses = controllerWrapper(async (_req, _res) => {
 
     response.success({
       status: 200,
-      message: 'Selection processes retrieved successfully',
+      message: 'Processos seletivos recuperados com sucesso',
       data: processesWithParsedDocs,
       total_count: processes.length,
     });
   } catch (error) {
-    console.error('Error retrieving selection processes:', error);
+    console.error('Erro ao recuperar processos seletivos:', error);
     response.failure({
-      message: 'Failed to retrieve selection processes',
+      message: 'Falha ao recuperar processos seletivos',
       status: 500,
     });
   }
@@ -187,7 +185,7 @@ export const getSelectionProcessById = controllerWrapper(async (_req, _res) => {
 
     if (process.length === 0) {
       return response.failure({
-        message: 'Selection process not found',
+        message: 'Processo seletivo não encontrado',
         status: 404,
       });
     }
@@ -200,13 +198,13 @@ export const getSelectionProcessById = controllerWrapper(async (_req, _res) => {
 
     response.success({
       status: 200,
-      message: 'Selection process retrieved successfully',
+      message: 'Processo seletivo recuperado com sucesso',
       data: processData,
     });
   } catch (error) {
-    console.error('Error retrieving selection process:', error);
+    console.error('Erro ao recuperar processo seletivo:', error);
     response.failure({
-      message: 'Failed to retrieve selection process',
+      message: 'Falha ao recuperar processo seletivo',
       status: 500,
     });
   }
@@ -228,7 +226,7 @@ export const updateSelectionProcess = controllerWrapper(async (_req, _res) => {
 
   if (existingProcess.length === 0) {
     return response.failure({
-      message: 'Selection process not found',
+      message: 'Processo seletivo não encontrado',
       status: 404,
     });
   }
@@ -240,7 +238,7 @@ export const updateSelectionProcess = controllerWrapper(async (_req, _res) => {
 
     if (endDate <= startDate) {
       return response.invalid({
-        message: 'End date must be after start date',
+        message: 'Data de fim deve ser posterior à data de início',
         status: 400,
       });
     }
@@ -266,7 +264,7 @@ export const updateSelectionProcess = controllerWrapper(async (_req, _res) => {
 
   if (updateFields.length === 0) {
     return response.invalid({
-      message: 'No fields to update',
+      message: 'Nenhum campo para atualizar',
       status: 400,
     });
   }
@@ -297,13 +295,13 @@ export const updateSelectionProcess = controllerWrapper(async (_req, _res) => {
 
     response.success({
       status: 200,
-      message: 'Selection process updated successfully',
+      message: 'Processo seletivo atualizado com sucesso',
       data: processData,
     });
   } catch (error) {
-    console.error('Error updating selection process:', error);
+    console.error('Erro ao atualizar processo seletivo:', error);
     response.failure({
-      message: 'Failed to update selection process',
+      message: 'Falha ao atualizar processo seletivo',
       status: 500,
     });
   }
@@ -325,7 +323,7 @@ export const deleteSelectionProcess = controllerWrapper(async (_req, _res) => {
 
     if (existingProcess.length === 0) {
       return response.failure({
-        message: 'Selection process not found',
+        message: 'Processo seletivo não encontrado',
         status: 404,
       });
     }
@@ -338,7 +336,8 @@ export const deleteSelectionProcess = controllerWrapper(async (_req, _res) => {
 
     if (parseInt(applications[0].count) > 0) {
       return response.failure({
-        message: 'Cannot delete selection process with existing applications',
+        message:
+          'Não é possível excluir processo seletivo com inscrições existentes',
         status: 409,
       });
     }
@@ -349,12 +348,12 @@ export const deleteSelectionProcess = controllerWrapper(async (_req, _res) => {
 
     response.success({
       status: 200,
-      message: 'Selection process deleted successfully',
+      message: 'Processo seletivo excluído com sucesso',
     });
   } catch (error) {
-    console.error('Error deleting selection process:', error);
+    console.error('Erro ao excluir processo seletivo:', error);
     response.failure({
-      message: 'Failed to delete selection process',
+      message: 'Falha ao excluir processo seletivo',
       status: 500,
     });
   }
