@@ -6,7 +6,7 @@ import {
   updateSelectionProcess,
   deleteSelectionProcess,
 } from '../../controllers/selection-processes';
-import { committeeAuthMiddleware } from '../../middlewares/auth/committee';
+import { committeeAuthMiddleware } from '../../middlewares/auth';
 
 const router = express.Router();
 

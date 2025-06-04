@@ -1,22 +1,22 @@
-import { ResponsePayload } from "../../middlewares/response";
-import { supabase } from "../../db";
-import { signToken } from "../../middlewares/auth";
+import { ResponsePayload } from '../../middlewares/response';
+import { supabase } from '../../db';
+import { signToken } from '../../middlewares/auth';
 
-export const verifyComissaoExistence = async (
+export const verifyCommitteeExistence = async (
   email: string,
   matricula: string,
   cpf: string
 ): Promise<boolean> => {
   const { data, error } = await supabase
-    .from("committee_members")
-    .select("*")
-    .eq("cpf", cpf)
-    .eq("email", email)
-    .eq("if_registration", matricula)
+    .from('committee_members')
+    .select('*')
+    .eq('cpf', cpf)
+    .eq('email', email)
+    .eq('if_registration', matricula)
     .maybeSingle();
 
-  console.log(data, "data");
-  console.log(error, "error");
+  console.log(data, 'data');
+  console.log(error, 'error');
 
   if (!data || error !== null) {
     return false;
@@ -25,7 +25,7 @@ export const verifyComissaoExistence = async (
   return true;
 };
 
-export const handlerComissaoRegister = async (
+export const handlerCommitteeRegister = async (
   email: string,
   matricula: string,
   name: string,
@@ -33,7 +33,7 @@ export const handlerComissaoRegister = async (
   password: string
 ): Promise<ResponsePayload | null> => {
   const { data, error } = await supabase
-    .from("committee_members")
+    .from('committee_members')
     .insert([
       {
         email: email,
@@ -47,16 +47,16 @@ export const handlerComissaoRegister = async (
 
   if (error !== null) {
     const { code } = error;
-    if (code === "23505") {
+    if (code === '23505') {
       return {
         error: true,
-        message: "Email, matricula or CPF already registered",
+        message: 'Email, matricula or CPF already registered',
         status: 409,
       };
     } else {
       return {
         error: true,
-        message: "Error on database",
+        message: 'Error on database',
         status: 500,
       };
     }
@@ -66,7 +66,7 @@ export const handlerComissaoRegister = async (
     const token = await signToken(data[0]);
     return {
       error: false,
-      message: "Committee user created",
+      message: 'Committee user created',
       status: 201,
       data: {
         token,
