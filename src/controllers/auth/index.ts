@@ -1,12 +1,12 @@
 import { response } from '../../middlewares/response';
 import { controllerWrapper } from '../../lib/controllerWrapper';
-import AppDataSource from '../../db';
-import { signToken } from '../../middlewares/auth';
 import { sanitizeCPF } from '../../utils/string-format';
 import {
   verifyCommitteeExistence,
   handlerCommitteeRegister,
 } from '../../models/committee-register';
+import { handlerCommitteeLogin } from '../../models/committee-login';
+import { verifyUserExistence } from '../../models/candidate-login';
 
 export type CommitteeRegisterProps = {
   email: string;
@@ -24,29 +24,17 @@ export type CommitteeLoginProps = {
 
 export const candidateLogin = controllerWrapper(async (_req, _res) => {
   const { email, cpf } = _req.body;
-  let token: string = '';
 
-  if (!AppDataSource.isInitialized) {
-    await AppDataSource.initialize();
-  }
+  const { data, error } = await verifyUserExistence(email, cpf);
 
-  const user = await AppDataSource.query(
-    `
-    SELECT * FROM candidates
-    WHERE email = $1 AND cpf = $2
-  `,
-    [email, cpf]
-  );
-
-  console.log(user, 'user');
-  if (user[0] === undefined) {
+  if (error || !data) {
     return response.failure({
       message: 'User not found',
       status: 404,
     });
-  } else {
-    token = await signToken(user[0]);
   }
+
+  const { token } = data;
 
   response.success({
     status: 200,
@@ -56,30 +44,17 @@ export const candidateLogin = controllerWrapper(async (_req, _res) => {
 
 export const committeeLogin = controllerWrapper(async (_req, _res) => {
   const { matricula, password } = _req.body;
-  let token: string = '';
 
-  if (!AppDataSource.isInitialized) {
-    await AppDataSource.initialize();
-  }
+  const { data, error } = await handlerCommitteeLogin(matricula, password);
 
-  const user = await AppDataSource.query(
-    `
-    SELECT * FROM committee_members
-    WHERE if_registration = $1 AND password = $2
-  `,
-    [matricula, password]
-  );
-
-  console.log(user, 'committee user');
-
-  if (user[0] === undefined) {
+  if (error || !data) {
     return response.failure({
       message: 'Committee user not found or invalid credentials',
       status: 404,
     });
-  } else {
-    token = await signToken(user[0]);
   }
+
+  const { token } = data;
 
   response.success({
     status: 200,

@@ -9,14 +9,20 @@ import AppDataSource from '../../db';
 export interface User {
   id: number;
   email: string;
-  // cpf?: string;
-  // sessaoid?: string;
-  // permissoes?: string;
-  // roles: string[];
+  name: string;
+  cpf: string;
   exp?: number;
 }
 
-export async function signToken(user: User): Promise<string> {
+export interface CommitteeMember {
+  id: number;
+  email: string;
+  name: string;
+  cpf: string;
+  if_registration: string;
+}
+
+export async function signToken(user: User | CommitteeMember): Promise<string> {
   const secret = Buffer.from(JWT_SECRET, 'base64');
 
   return jwt.sign({ ...user, roles: ['USER'] }, secret, {

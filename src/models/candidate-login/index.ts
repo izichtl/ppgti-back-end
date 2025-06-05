@@ -1,11 +1,20 @@
-import { ResponsePayload } from '../../middlewares/response';
 import { supabase } from '../../db';
 import { signToken } from '../../middlewares/auth';
+
+interface CandidateLoginResponse {
+  error: boolean;
+  message: string;
+  status: number;
+  data?: {
+    token: string;
+    islogin: boolean;
+  };
+}
 
 export const verifyUserExistence = async (
   email: string,
   cpf: string
-): Promise<ResponsePayload | null> => {
+): Promise<CandidateLoginResponse> => {
   const { data, error } = await supabase
     .from('candidates')
     .select(
@@ -21,7 +30,11 @@ export const verifyUserExistence = async (
     .maybeSingle();
 
   if (error !== null) {
-    return { error: true, message: 'Error on database', status: 404 };
+    return {
+      error: true,
+      message: 'Error on database',
+      status: 404,
+    };
   }
 
   if (data !== null) {
@@ -40,7 +53,12 @@ export const verifyUserExistence = async (
       },
     };
   }
-  return null;
+
+  return {
+    error: true,
+    message: 'User not found',
+    status: 404,
+  };
 };
 
 export const getQuotaId = async (quota: string): Promise<number | boolean> => {
