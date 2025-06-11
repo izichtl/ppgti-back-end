@@ -1,10 +1,10 @@
 import express from 'express';
 import {
-  createSelectionProcess,
-  getSelectionProcesses,
-  getSelectionProcessById,
-  updateSelectionProcess,
-  deleteSelectionProcess,
+  createSelectionProcessController,
+  getSelectionProcessesController,
+  getSelectionProcessByIdController,
+  updateSelectionProcessController,
+  deleteSelectionProcessController,
 } from '../../controllers/selection-processes';
 import { committeeAuthMiddleware } from '../../middlewares/auth';
 
@@ -200,7 +200,7 @@ const router = express.Router();
 router.post(
   '/v1/selection-processes',
   committeeAuthMiddleware,
-  createSelectionProcess
+  createSelectionProcessController
 );
 
 /**
@@ -235,7 +235,7 @@ router.post(
  *       500:
  *         description: Internal server error
  */
-router.get('/v1/selection-processes', getSelectionProcesses);
+router.get('/v1/selection-processes', getSelectionProcessesController);
 
 /**
  * @swagger
@@ -273,7 +273,7 @@ router.get('/v1/selection-processes', getSelectionProcesses);
  *       500:
  *         description: Internal server error
  */
-router.get('/v1/selection-processes/:id', getSelectionProcessById);
+router.get('/v1/selection-processes/:id', getSelectionProcessByIdController);
 
 /**
  * @swagger
@@ -373,7 +373,7 @@ router.get('/v1/selection-processes/:id', getSelectionProcessById);
 router.put(
   '/v1/selection-processes/:id',
   committeeAuthMiddleware,
-  updateSelectionProcess
+  updateSelectionProcessController
 );
 
 /**
@@ -419,7 +419,7 @@ router.put(
 router.delete(
   '/v1/selection-processes/:id',
   committeeAuthMiddleware,
-  deleteSelectionProcess
+  deleteSelectionProcessController
 );
 
 export default router;
