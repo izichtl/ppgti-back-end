@@ -94,6 +94,16 @@ export const getAllSelectionProcesses = async (): Promise<ResponsePayload> => {
       };
     }
 
+    if (!processes || processes.length === 0) {
+      return {
+        error: false,
+        message: 'Nenhum processo seletivo encontrado',
+        status: 200,
+        data: [],
+        total_count: 0,
+      };
+    }
+
     const processesWithParsedDocs = processes.map((process: any) => ({
       ...process,
       documents_required: process.documents_required || [],
@@ -126,14 +136,15 @@ export const getSelectionProcessById = async (
       .eq('id', id)
       .single();
 
+    if (!process) {
+      return {
+        error: true,
+        message: 'Processo seletivo não encontrado',
+        status: 404,
+      };
+    }
+
     if (error) {
-      if (error.code === 'PGRST116') {
-        return {
-          error: true,
-          message: 'Processo seletivo não encontrado',
-          status: 404,
-        };
-      }
       console.error('Erro ao recuperar processo seletivo:', error);
       return {
         error: true,
@@ -168,21 +179,23 @@ export const updateSelectionProcess = async (
   data: UpdateSelectionProcessProps
 ): Promise<ResponsePayload> => {
   try {
-    // Check if process exists first
     const { data: existingProcess, error: checkError } = await supabase
       .from('selection_processes')
       .select('id')
       .eq('id', id)
       .single();
 
+    if (!existingProcess) {
+      console.error('Processo seletivo não encontrado');
+      return {
+        error: true,
+        message: 'Processo seletivo não encontrado',
+        status: 404,
+      };
+    }
+
     if (checkError) {
-      if (checkError.code === 'PGRST116') {
-        return {
-          error: true,
-          message: 'Processo seletivo não encontrado',
-          status: 404,
-        };
-      }
+      console.error('Erro ao verificar processo seletivo:', checkError);
       return {
         error: true,
         message: 'Erro ao verificar processo seletivo',
@@ -190,7 +203,6 @@ export const updateSelectionProcess = async (
       };
     }
 
-    // Filter out undefined values
     const updateData = Object.entries(data).reduce((acc, [key, value]) => {
       if (value !== undefined) {
         acc[key] = value;
@@ -206,7 +218,6 @@ export const updateSelectionProcess = async (
       };
     }
 
-    // Add updated_at
     updateData.updated_at = new Date().toISOString();
 
     const { data: result, error } = await supabase
@@ -250,21 +261,22 @@ export const deleteSelectionProcess = async (
   id: string
 ): Promise<ResponsePayload> => {
   try {
-    // Check if process exists
     const { data: existingProcess, error: checkError } = await supabase
       .from('selection_processes')
       .select('id')
       .eq('id', id)
       .single();
 
+    if (!existingProcess) {
+      return {
+        error: true,
+        message: 'Processo seletivo não encontrado',
+        status: 404,
+      };
+    }
+
     if (checkError) {
-      if (checkError.code === 'PGRST116') {
-        return {
-          error: true,
-          message: 'Processo seletivo não encontrado',
-          status: 404,
-        };
-      }
+      console.error('Erro ao verificar processo seletivo:', checkError);
       return {
         error: true,
         message: 'Erro ao verificar processo seletivo',
@@ -272,7 +284,6 @@ export const deleteSelectionProcess = async (
       };
     }
 
-    // Check if there are any applications for this process
     const { data: applications, error: appError } = await supabase
       .from('applications')
       .select('id', { count: 'exact', head: true })
