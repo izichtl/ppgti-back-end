@@ -1,12 +1,12 @@
 import { ResponsePayload } from '../../middlewares/response';
 import { supabase } from '../../db';
 import {
-  CreateSelectionProcessProps,
-  UpdateSelectionProcessProps,
-} from '../../controllers/selection-processes';
+  CreateSelectionProcessPayload,
+  UpdateSelectionProcessPayload,
+} from './types';
 
 export const createSelectionProcess = async (
-  data: CreateSelectionProcessProps
+  data: CreateSelectionProcessPayload
 ): Promise<ResponsePayload> => {
   const {
     title,
@@ -176,7 +176,7 @@ export const getSelectionProcessById = async (
 
 export const updateSelectionProcess = async (
   id: string,
-  data: UpdateSelectionProcessProps
+  data: UpdateSelectionProcessPayload
 ): Promise<ResponsePayload> => {
   try {
     const { data: existingProcess, error: checkError } = await supabase
