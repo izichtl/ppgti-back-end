@@ -1,12 +1,12 @@
 import express from 'express';
 import {
   createSelectionProcess,
-  getSelectionProcesses,
   getSelectionProcessById,
   updateSelectionProcess,
   deleteSelectionProcess,
 } from '../../controllers/selection-processes';
 import { committeeAuthMiddleware } from '../../middlewares/auth';
+import { getSelectionProcesses } from '../../controllers/get-selection-processes/index';
 
 const router = express.Router();
 

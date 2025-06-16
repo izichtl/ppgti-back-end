@@ -133,40 +133,7 @@ export const createSelectionProcess = controllerWrapper(async (_req, _res) => {
   }
 });
 
-export const getSelectionProcesses = controllerWrapper(async (_req, _res) => {
-  if (!AppDataSource.isInitialized) {
-    await AppDataSource.initialize();
-  }
 
-  try {
-    const processes = await AppDataSource.query(
-      `
-      SELECT * FROM selection_processes
-      ORDER BY created_at DESC, id
-      `
-    );
-
-    console.log('processes', processes);
-
-    const processesWithParsedDocs = processes.map((process: any) => ({
-      ...process,
-      documents_required: process.documents_required || [],
-    }));
-
-    response.success({
-      status: 200,
-      message: 'Processos seletivos recuperados com sucesso',
-      data: processesWithParsedDocs,
-      total_count: processes.length,
-    });
-  } catch (error) {
-    console.error('Erro ao recuperar processos seletivos:', error);
-    response.failure({
-      message: 'Falha ao recuperar processos seletivos',
-      status: 500,
-    });
-  }
-});
 
 export const getSelectionProcessById = controllerWrapper(async (_req, _res) => {
   const { id } = _req.params;
