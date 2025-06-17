@@ -12,9 +12,10 @@ export const candidateUpdater = controllerWrapper(async (_req, _res) => {
   }
   const user = await getUserFromToken(token as string);
   const { cpf, email } = user as any;
-  console.log('user', user);
-  let {
+
+  const {
     name,
+    social_name,
     sex,
     registration_,
     registration_state,
@@ -30,8 +31,16 @@ export const candidateUpdater = controllerWrapper(async (_req, _res) => {
     phone,
     other_email,
     quota,
+    education_level,
+    graduation_course,
+    graduation_year,
+    graduation_institution,
+    specialization_course,
+    specialization_year,
+    specialization_institution,
+    lattes_link,
   } = _req.body;
-  console.log('body', _req.body);
+
   const { data: quotaData, error: quotaError } = await supabase
     .from('quotas')
     .select('id')
@@ -47,10 +56,11 @@ export const candidateUpdater = controllerWrapper(async (_req, _res) => {
 
   const quota_id = quotaData.id;
 
-  const { data, error: updateError } = await supabase
-    .from('candidates')
-    .update({
+  // Create update object with only present fields
+  const updateData = Object.fromEntries(
+    Object.entries({
       name,
+      social_name,
       sex,
       registration_,
       registration_state,
@@ -66,11 +76,27 @@ export const candidateUpdater = controllerWrapper(async (_req, _res) => {
       phone,
       other_email,
       quota_id,
-    })
+      education_level,
+      graduation_course,
+      graduation_year,
+      graduation_institution,
+      specialization_course,
+      specialization_year,
+      specialization_institution,
+      lattes_link,
+    }).filter(([_, value]) => value !== undefined)
+  );
+
+  console.log('updateData', updateData);
+
+  const { data, error: updateError } = await supabase
+    .from('candidates')
+    .update(updateData)
     .eq('cpf', cpf)
-    .eq('email', email);
-  console.error(data, 'data');
-  if (updateError) {
+    .eq('email', email)
+    .select();
+
+  if (updateError || !data) {
     return response.failure({
       message: 'Erro ao atualizar dados pessoais',
       status: 400,

@@ -1,5 +1,5 @@
 import express from 'express';
-import { candidateUpdater } from '../../controllers/cadidate-personal-data/indext';
+import { candidateUpdater } from '../../controllers/cadidate-personal-data';
 import { candidateAcademicUpdater } from '../../controllers/candidate-academic-data';
 
 const router = express.Router();
