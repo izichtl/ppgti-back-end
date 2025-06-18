@@ -1,9 +1,23 @@
 import express from 'express';
-import { candidateUpdater } from '../../controllers/cadidate-personal-data/indext';
+import { candidateData } from '../../controllers/candidate';
 import { candidateAcademicUpdater } from '../../controllers/candidate-academic-data';
+import { candidateUpdater } from '../../controllers/cadidate-personal-data';
 
 const router = express.Router();
 // TODO atualiza as infos das rotas para swagger
+
+/**
+ * @swagger
+ * /v1/candidate:
+ *   get:
+ *     summary: Dados do candidato
+ *     tags:
+ *       - Auth
+ *     responses:
+ *       200:
+ *         description: Dados do candidato
+ */
+router.get('/v1/candidate', candidateData);
 
 /**
  * @swagger

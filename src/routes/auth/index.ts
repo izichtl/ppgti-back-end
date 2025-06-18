@@ -1,10 +1,10 @@
-import express from "express";
-import { candidateLogin } from "../../controllers/auth/index";
-import { candidateRegister } from "../../controllers/candidate-register";
+import express from 'express';
+import { candidateLogin } from '../../controllers/auth/index';
+import { candidateRegister } from '../../controllers/candidate-register';
 import {
-  comissaoLogin,
-  comissaoRegister,
-} from "../../controllers/auth/comissao";
+  committeeLogin,
+  committeeRegister,
+} from '../../controllers/auth/index';
 
 const router = express.Router();
 
@@ -32,7 +32,7 @@ const router = express.Router();
  *       401:
  *         description: Credenciais inválidas
  */
-router.post("/v1/auth/login", candidateLogin);
+router.post('/v1/auth/login', candidateLogin);
 /**
  * @swagger
  * /v1/auth/register:
@@ -59,11 +59,11 @@ router.post("/v1/auth/login", candidateLogin);
  *       409:
  *         description: Email ou CPF já registrado
  */
-router.post("/v1/auth/register", candidateRegister);
+router.post('/v1/auth/register', candidateRegister);
 
 /**
  * @swagger
- * /v1/auth/comissao/login:
+ * /v1/auth/committee/login:
  *   post:
  *     summary: Realiza o login de um membro da comissão
  *     tags:
@@ -110,11 +110,11 @@ router.post("/v1/auth/register", candidateRegister);
  *                 message:
  *                   type: string
  */
-router.post("/v1/auth/comissao/login", comissaoLogin);
+router.post('/v1/auth/committee/login', committeeLogin);
 
 /**
  * @swagger
- * /v1/auth/comissao/register:
+ * /v1/auth/committee/register:
  *   post:
  *     summary: Registra um novo membro da comissão
  *     tags:
@@ -195,6 +195,6 @@ router.post("/v1/auth/comissao/login", comissaoLogin);
  *                 message:
  *                   type: string
  */
-router.post("/v1/auth/comissao/register", comissaoRegister);
+router.post('/v1/auth/committee/register', committeeRegister);
 
 export default router;
