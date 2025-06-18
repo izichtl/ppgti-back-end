@@ -1,30 +1,22 @@
 // @ts-nocheck
-import { response } from '../../middlewares/response';
+// TODO AJUSTAR FUNCAO DE RETORNO DO MODEL
 import { controllerWrapper } from '../../lib/controllerWrapper';
-import { signToken } from '../../middlewares/auth/index';
-import AppDataSource, { supabase } from '../../db';
 import { sanitizeCPF } from '../../utils/string-format';
 import { verifyUserExistence } from '../../models/candidate-login';
-import e from 'express';
 import { handlerCadidateRegister } from '../../models/candidate-register';
 
-export interface ResponsePayload {
-  error: boolean;
-  message: string;
-  status: number;
-  data?: any;
-}
 
 export const candidateRegister = controllerWrapper(async (_req, _res) => {
   const { email, cpf, social_name } = _req.body;
   const sanitizeCPFValue = sanitizeCPF(cpf);
+
   // verifica se o usuário existe
   const verifyUser = await verifyUserExistence(email, sanitizeCPFValue);
   if (verifyUser !== null) {
     if (verifyUser.error) {
-      return response.failure(verifyUser);
+      return _res.response.failure(verifyUser);
     } else {
-      return response.success(verifyUser);
+      return _res.response.success(verifyUser);
     }
   }
 
@@ -37,9 +29,9 @@ export const candidateRegister = controllerWrapper(async (_req, _res) => {
 
   if (registerUser !== null) {
     if (registerUser.error) {
-      return response.failure(registerUser);
+      return _res.response.failure(registerUser);
     } else {
-      return response.success(registerUser);
+      return _res.response.success(registerUser);
     }
   }
 });

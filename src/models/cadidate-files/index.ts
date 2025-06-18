@@ -1,7 +1,7 @@
 import { ResponsePayload } from '../../middlewares/response';
 import { supabase } from '../../db';
 
-// TODO precisa fazer o tratamento de erro
+
 export const handlerCandidateFiles = async (
   cpf: string
 ): Promise<ResponsePayload | null> => {
