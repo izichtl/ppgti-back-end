@@ -1,9 +1,21 @@
+// @ts-nocheck
 // import {  } from '../../middlewares/response';
 import { controllerWrapper } from '../../lib/controllerWrapper';
-import AppDataSource from '../../db';
-import { z } from 'zod';
+import {
+  createSelectionProcess,
+  getAllSelectionProcesses,
+  getSelectionProcessById,
+  updateSelectionProcess,
+  deleteSelectionProcess,
+} from '../../models/selection-processes';
+import {
+  createSelectionProcessSchema,
+  updateSelectionProcessSchema,
+} from '../../models/selection-processes/types';
 
-const statusEnum = z.enum(['draft', 'published', 'closed']);
+export const createSelectionProcessController = controllerWrapper(
+  async (_req, _res) => {
+    const validatedData = createSelectionProcessSchema.parse(_req.body);
 
 const createSelectionProcessSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
@@ -204,6 +216,8 @@ export const updateSelectionProcess = controllerWrapper(async (_req, _res) => {
   if (validatedData.start_date && validatedData.end_date) {
     const startDate = new Date(validatedData.start_date);
     const endDate = new Date(validatedData.end_date);
+    const appDeadline = new Date(validatedData.application_deadline);
+    const resultDate = new Date(validatedData.result_date);
 
     if (endDate <= startDate) {
       return _res.response.invalid({
@@ -211,118 +225,95 @@ export const updateSelectionProcess = controllerWrapper(async (_req, _res) => {
         status: 400,
       });
     }
+
+    if (appDeadline <= startDate) {
+      return response.invalid({
+        message: 'Prazo de inscrição deve ser posterior à data de início',
+        status: 400,
+      });
+    }
+
+    if (resultDate <= appDeadline) {
+      return response.invalid({
+        message: 'Data do resultado deve ser posterior ao prazo de inscrição',
+        status: 400,
+      });
+    }
+
+    const result = await createSelectionProcess(validatedData);
+
+    if (result.error) {
+      return response.failure(result);
+    }
+
+    return response.success(result);
   }
+);
 
-  // Build dynamic update query
-  const updateFields = [];
-  const updateValues = [];
-  let paramIndex = 1;
+export const getSelectionProcessesController = controllerWrapper(
+  async (_req, _res) => {
+    const result = await getAllSelectionProcesses();
 
-  for (const [key, value] of Object.entries(validatedData)) {
-    if (value !== undefined) {
-      if (key === 'documents_required') {
-        updateFields.push(`${key} = $${paramIndex}`);
-        updateValues.push(JSON.stringify(value));
-      } else {
-        updateFields.push(`${key} = $${paramIndex}`);
-        updateValues.push(value);
+    if (result.error) {
+      return response.failure(result);
+    }
+
+    return response.success(result);
+  }
+);
+
+export const getSelectionProcessByIdController = controllerWrapper(
+  async (_req, _res) => {
+    const { id } = _req.params;
+
+    const result = await getSelectionProcessById(id);
+
+    if (result.error) {
+      return response.failure(result);
+    }
+
+    return response.success(result);
+  }
+);
+
+export const updateSelectionProcessController = controllerWrapper(
+  async (_req, _res) => {
+    const { id } = _req.params;
+    const validatedData = updateSelectionProcessSchema.parse(_req.body);
+
+    // Validate dates if provided
+    if (validatedData.start_date && validatedData.end_date) {
+      const startDate = new Date(validatedData.start_date);
+      const endDate = new Date(validatedData.end_date);
+
+      if (endDate <= startDate) {
+        return response.invalid({
+          message: 'Data de fim deve ser posterior à data de início',
+          status: 400,
+        });
       }
-      paramIndex++;
-    }
-  }
-
-  if (updateFields.length === 0) {
-    return _res.response.invalid({
-      message: 'Nenhum campo para atualizar',
-      status: 400,
-    });
-  }
-
-  // Add updated_at field
-  updateFields.push(`updated_at = $${paramIndex}`);
-  updateValues.push(new Date());
-  paramIndex++;
-
-  updateValues.push(id);
-
-  try {
-    const result = await AppDataSource.query(
-      `
-      UPDATE selection_processes
-      SET ${updateFields.join(', ')}
-      WHERE id = $${paramIndex}
-      RETURNING *
-      `,
-      updateValues
-    );
-
-    const processData = {
-      ...result[0],
-      documents_required: result[0].documents_required || [],
-    };
-
-    _res.response.success({
-      status: 200,
-      message: 'Processo seletivo atualizado com sucesso',
-      data: processData,
-    });
-  } catch (error) {
-    console.error('Erro ao atualizar processo seletivo:', error);
-    _res.response.failure({
-      message: 'Falha ao atualizar processo seletivo',
-      status: 500,
-    });
-  }
-});
-
-export const deleteSelectionProcess = controllerWrapper(async (_req, _res) => {
-  const { id } = _req.params;
-
-  if (!AppDataSource.isInitialized) {
-    await AppDataSource.initialize();
-  }
-
-  try {
-    // Check if process exists
-    const existingProcess = await AppDataSource.query(
-      `SELECT * FROM selection_processes WHERE id = $1`,
-      [id]
-    );
-
-    if (existingProcess.length === 0) {
-      return _res.response.failure({
-        message: 'Processo seletivo não encontrado',
-        status: 404,
-      });
     }
 
-    // Check if there are any applications for this process
-    const applications = await AppDataSource.query(
-      `SELECT COUNT(*) as count FROM applications WHERE process_id = $1`,
-      [id]
-    );
+    const result = await updateSelectionProcess(id, validatedData);
 
-    if (parseInt(applications[0].count) > 0) {
-      return _res.response.failure({
-        message:
-          'Não é possível excluir processo seletivo com inscrições existentes',
-        status: 409,
-      });
+    if (result.error) {
+      return response.failure(result);
     }
 
-    await AppDataSource.query(`DELETE FROM selection_processes WHERE id = $1`, [
-      id,
-    ]);
-
-    _res.response.success({
-      status: 200,
-      message: 'Processo seletivo excluído com sucesso',
-    });
-  } catch (error) {
-    console.error('Erro ao excluir processo seletivo:', error);
-    _res.response.failure({
-      message: 'Falha ao excluir processo seletivo',
-      status: 500,
-    });
+    return response.success(result);
   }
-});
+);
+
+export const deleteSelectionProcessController = controllerWrapper(
+  async (_req, _res) => {
+    const { id } = _req.params;
+
+    const result = await deleteSelectionProcess(id);
+
+    if (result.error) {
+      return response.failure(result);
+    }
+
+    return response.success(result);
+  }
+);

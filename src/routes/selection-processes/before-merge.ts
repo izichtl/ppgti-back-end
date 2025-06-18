@@ -2,14 +2,11 @@ import express from 'express';
 import {
   createSelectionProcessController,
   getSelectionProcessesController,
-  // getSelectionProcessByIdController,
+  getSelectionProcessByIdController,
   updateSelectionProcessController,
   deleteSelectionProcessController,
 } from '../../controllers/selection-processes';
 import { committeeAuthMiddleware } from '../../middlewares/auth';
-// import { getSelectionProcesses } from '../../controllers/get-selection-processes/index';
-import { uploaderMiddleware } from '../../middlewares/mutter-uploader';
-import { aplicationRegister } from '../../controllers/aplication-register';
 
 const router = express.Router();
 
@@ -276,7 +273,7 @@ router.get('/v1/selection-processes', getSelectionProcessesController);
  *       500:
  *         description: Internal server error
  */
-// router.get('/v1/selection-processes/:id', getSelectionProcessById);
+router.get('/v1/selection-processes/:id', getSelectionProcessByIdController);
 
 /**
  * @swagger
@@ -424,31 +421,5 @@ router.delete(
   committeeAuthMiddleware,
   deleteSelectionProcessController
 );
-
-router.post('/v1/selection-processes/aplication', uploaderMiddleware, aplicationRegister);
-/**
- * @swagger
- * /v1/file-manager/pdf/:filename:
- *   post:
- *     summary: Serve o documento selecionado
- *     tags:
- *       - Auth
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *               password:
- *                 type: string
- *     responses:
- *       200:
- *         description: Login realizado com sucesso
- *       401:
- *         description: Credenciais inválidas
- */
 
 export default router;
