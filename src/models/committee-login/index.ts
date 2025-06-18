@@ -15,6 +15,7 @@ export const handlerCommitteeLogin = async (
   matricula: string,
   password: string
 ): Promise<CommitteeLoginResponse> => {
+  console.log('@@@@SUA')
   const { data, error } = await supabase
     .from('committee_members')
     .select('*')

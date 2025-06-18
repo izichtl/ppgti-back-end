@@ -106,17 +106,17 @@ CREATE TABLE selection_processes (
 -- linha de pesquisa
 --
 CREATE TABLE research_lines (
-    id SERIAL PRIMARY KEY,
-    process_id INTEGER REFERENCES selection_processes(id) ON DELETE CASCADE,
-    name VARCHAR(255) NOT NULL
+  id SERIAL PRIMARY KEY,
+  process_id INTEGER NOT NULL REFERENCES selection_processes(id) ON DELETE CASCADE,
+  name VARCHAR(255) NOT NULL
 );
 
 -- tema de pesquisa
 --
 CREATE TABLE research_topics (
-    id SERIAL PRIMARY KEY,
-    line_id INTEGER REFERENCES research_lines(id) ON DELETE CASCADE,
-    name VARCHAR(255) NOT NULL
+  id SERIAL PRIMARY KEY,
+  line_id INTEGER NOT NULL REFERENCES research_lines(id) ON DELETE CASCADE,
+  name VARCHAR(255) NOT NULL
 );
 
 -- inscricoes no processos
