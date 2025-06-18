@@ -1,21 +1,17 @@
-import { Request, Response } from 'express';
-import { response, ResponsePayload } from '../../middlewares/response';
+
+import { ResponsePayload } from '../../middlewares/response';
 import { controllerWrapper } from '../../lib/controllerWrapper';
 import { updateCandidateDocument } from './insert-or-update';
 import { sanitizeCPF } from '../../utils/string-format';
 import { authGuard, getUserFromToken } from '../../middlewares/auth';
 
-interface MulterRequest extends Request {
-  file?: Express.Multer.File;
-}
 
 export const fileUploader = controllerWrapper(
-  // @ts-expect-error
-  async (_req: MulterRequest, res: Response) => {
+  async (_req, _res) => {
     const token = _req.headers['authorization'];
     const guardResponse: ResponsePayload = authGuard(token as string);
     if (guardResponse.error) {
-      return response.failure(guardResponse);
+      return _res.response.failure(guardResponse);
     }
     const user = await getUserFromToken(token as string);
     const { cpf } = user as any;
@@ -28,25 +24,23 @@ export const fileUploader = controllerWrapper(
 
     if (!file) {
       console.log('error file');
-      return response.failure({ message: 'No file uploaded', status: 400 });
+      return _res.response.failure({ message: 'No file uploaded', status: 400 });
     }
 
     try {
       await updateCandidateDocument(file, cpf, column, fileName);
     } catch (e) {
       console.log(e);
-      return response.failure({ message: 'No file uploaded', status: 400 });
+      return _res.response.failure({ message: 'No file uploaded', status: 400 });
     }
-
-    return res.status(200).json(
-      response.success({
-        message: 'File uploaded successfully',
-        data: {
-          fileName: file.filename,
-          filePath: `/registration-pdf/${fileName}`,
-        },
-        status: 200,
-      })
-    );
+    
+    _res.response.success({
+      message: 'File uploaded successfully',
+      data: {
+        fileName: file.filename,
+        filePath: `/registration-pdf/${fileName}`,
+      },
+      status: 200,
+    })
   }
 );

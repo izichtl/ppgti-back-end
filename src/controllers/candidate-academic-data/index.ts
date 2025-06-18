@@ -42,14 +42,13 @@ export const candidateAcademicUpdater = controllerWrapper(
       .eq('email', email);
 
     if (updateError) {
-      console.error(updateError);
-      return response.failure({
+      return _res.response.failure({
         message: 'Erro ao atualizar dados acadêmicos',
         status: 400,
       });
     }
 
-    return response.success({
+    return _res.response.success({
       message: 'Dados acadêmicos atualizados com sucesso',
       status: 200,
     });

@@ -12,7 +12,7 @@ export const candidateUpdater = controllerWrapper(async (_req, _res) => {
   }
   const user = await getUserFromToken(token as string);
   const { cpf, email } = user as any;
-  console.log('user', user);
+
   let {
     name,
     sex,
@@ -31,7 +31,7 @@ export const candidateUpdater = controllerWrapper(async (_req, _res) => {
     other_email,
     quota,
   } = _req.body;
-  console.log('body', _req.body);
+
   const { data: quotaData, error: quotaError } = await supabase
     .from('quotas')
     .select('id')
@@ -39,7 +39,7 @@ export const candidateUpdater = controllerWrapper(async (_req, _res) => {
     .maybeSingle();
 
   if (quotaError || !quotaData) {
-    return response.failure({
+    return _res.response.failure({
       message: 'Tipo de cota inválido ou não encontrado',
       status: 400,
     });
@@ -69,16 +69,17 @@ export const candidateUpdater = controllerWrapper(async (_req, _res) => {
     })
     .eq('cpf', cpf)
     .eq('email', email);
-  console.error(data, 'data');
+
   if (updateError) {
-    return response.failure({
+    return _res.response.failure({
       message: 'Erro ao atualizar dados pessoais',
       status: 400,
     });
   }
 
-  return response.success({
+  return _res.response.success({
     message: 'Dados pessoais atualizados com sucesso',
     status: 200,
+    data: data
   });
 });

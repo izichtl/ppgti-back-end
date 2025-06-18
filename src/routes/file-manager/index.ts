@@ -1,7 +1,6 @@
 import express from 'express';
 import { fileUploader } from '../../controllers/file-manager';
 import { uploaderMiddleware } from '../../middlewares/mutter-uploader';
-import { fileServer } from '../../controllers/file-server';
 import { candidateFilerList } from '../../controllers/file-lister';
 
 const router = express.Router();
@@ -31,32 +30,6 @@ const router = express.Router();
  *         description: Credenciais inválidas
  */
 router.post('/v1/file-manager/upload', uploaderMiddleware, fileUploader);
-/**
- * @swagger
- * /v1/file-manager/pdf/:filename:
- *   post:
- *     summary: Serve o documento selecionado
- *     tags:
- *       - Auth
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *               password:
- *                 type: string
- *     responses:
- *       200:
- *         description: Login realizado com sucesso
- *       401:
- *         description: Credenciais inválidas
- */
-
-router.get('/v1/file-manager/pdf/:filename', fileServer);
 /**
  * @swagger
  * /v1/file-manager/pdf/list:

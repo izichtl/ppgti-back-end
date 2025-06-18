@@ -1,7 +1,8 @@
 // @ts-nocheck
-import { response, ResponsePayload } from '../../middlewares/response';
+// TODO AJUSTAR TYPES
+// TUDO CRIAR GUARD
+import { ResponsePayload } from '../../middlewares/response';
 import { controllerWrapper } from '../../lib/controllerWrapper';
-import { supabase } from '../../db';
 import supabaseSignedUrl from '../../storage';
 import { authGuard, getUserFromToken } from '../../middlewares/auth/index';
 import { handlerCandidateFiles } from '../../models/cadidate-files';
@@ -11,7 +12,7 @@ export const candidateFilerList = controllerWrapper(async (_req, _res) => {
   // guard-jwt
   const guardResponse: ResponsePayload = authGuard(token as string);
   if (guardResponse.error) {
-    return response.failure(guardResponse);
+    return _res.response.failure(guardResponse);
   }
 
   const user = await getUserFromToken(token as string);
@@ -20,11 +21,12 @@ export const candidateFilerList = controllerWrapper(async (_req, _res) => {
 
   if (cadidateFiles !== null) {
     if (cadidateFiles.error) {
-      return response.failure(cadidateFiles);
+      return _res.response.failure(cadidateFiles);
     }
   }
 
   const signedUrls = await Promise.all(
+    //@ts-expect-error
     Object.entries(cadidateFiles.data).map(async ([key, value]) => {
       if (typeof value === 'string') {
         try {
@@ -43,7 +45,7 @@ export const candidateFilerList = controllerWrapper(async (_req, _res) => {
   signedUrlsObject.id = cadidateFiles.data.id;
   signedUrlsObject.cpf = cadidateFiles.data.cpf;
 
-  response.success({
+  _res.response.success({
     status: 200,
     data: signedUrlsObject,
   });

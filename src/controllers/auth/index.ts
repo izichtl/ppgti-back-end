@@ -1,4 +1,3 @@
-import { response } from '../../middlewares/response';
 import { controllerWrapper } from '../../lib/controllerWrapper';
 import { sanitizeCPF } from '../../utils/string-format';
 import {
@@ -28,7 +27,7 @@ export const candidateLogin = controllerWrapper(async (_req, _res) => {
   const { data, error } = await verifyUserExistence(email, cpf);
 
   if (error || !data) {
-    return response.failure({
+    return _res.response.failure({
       message: 'User not found',
       status: 404,
     });
@@ -36,7 +35,7 @@ export const candidateLogin = controllerWrapper(async (_req, _res) => {
 
   const { token } = data;
 
-  response.success({
+  _res.response.success({
     status: 200,
     data: token,
   });
@@ -44,11 +43,12 @@ export const candidateLogin = controllerWrapper(async (_req, _res) => {
 
 export const committeeLogin = controllerWrapper(async (_req, _res) => {
   const { matricula, password } = _req.body;
+  console.log('@@@@@@@@@@@@@@@@@@@@@@@@@')
 
   const { data, error } = await handlerCommitteeLogin(matricula, password);
 
   if (error || !data) {
-    return response.failure({
+    return _res.response.failure({
       message: 'Committee user not found or invalid credentials',
       status: 404,
     });
@@ -56,7 +56,7 @@ export const committeeLogin = controllerWrapper(async (_req, _res) => {
 
   const { token } = data;
 
-  response.success({
+  _res.response.success({
     status: 200,
     data: token,
   });
@@ -76,14 +76,14 @@ export const committeeRegister = controllerWrapper(async (_req, _res) => {
   const envAuthorizationCode = process.env.COMMITTEE_AUTHORIZATION_CODE;
 
   if (!envAuthorizationCode) {
-    return response.failure({
+    return _res.response.failure({
       message: 'Committee authorization code not configured',
       status: 500,
     });
   }
 
   if (authorizationCode !== envAuthorizationCode) {
-    return response.failure({
+    return _res.response.failure({
       message: 'Invalid authorization code',
       status: 403,
     });
@@ -96,7 +96,7 @@ export const committeeRegister = controllerWrapper(async (_req, _res) => {
   );
 
   if (userAlreadyExists) {
-    return response.failure({
+    return _res.response.failure({
       message: 'Committee user already exists',
       status: 409,
       code: 'CONFLICT',
@@ -113,13 +113,13 @@ export const committeeRegister = controllerWrapper(async (_req, _res) => {
 
   if (registerUser) {
     if (registerUser.error) {
-      return response.failure({
+      return _res.response.failure({
         message: registerUser.message,
         status: registerUser.status,
         code: registerUser.code || 'INTERNAL_SERVER_ERROR',
       });
     } else {
-      return response.success({
+      return _res.response.success({
         status: registerUser.status,
         message: 'Committee user registered successfully',
         data: {
@@ -129,7 +129,7 @@ export const committeeRegister = controllerWrapper(async (_req, _res) => {
     }
   }
 
-  return response.failure({
+  return _res.response.failure({
     message: 'Failed to register committee user',
     status: 500,
     code: 'INTERNAL_SERVER_ERROR',

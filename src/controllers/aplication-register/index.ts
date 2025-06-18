@@ -1,18 +1,10 @@
-import { Request, Response } from 'express';
 import { response, ResponsePayload } from '../../middlewares/response';
 import { controllerWrapper } from '../../lib/controllerWrapper';
-// import { updateCandidateDocument } from './insert-or-update';
 import { sanitizeCPF } from '../../utils/string-format';
 import { authGuard, getUserFromToken } from '../../middlewares/auth';
 import { uploadCandidateProject } from './insert-or-update';
 
-interface MulterRequest extends Request {
-  file?: Express.Multer.File;
-}
-
-export const aplicationRegister = controllerWrapper(
-  // @ts-expect-error
-  async (_req: MulterRequest, res: Response) => {
+export const aplicationRegister = controllerWrapper(async (_req, _res) => {
     const token = _req.headers['authorization'];
     const guardResponse: ResponsePayload = authGuard(token as string);
     if (guardResponse.error) {
@@ -22,9 +14,7 @@ export const aplicationRegister = controllerWrapper(
     const { cpf } = user as any;
 
 
-    const {  process_id, research_line_id, research_topic_id, project_title, project_file_name } = _req.body
-    console.log(process_id, research_line_id, research_topic_id, project_title, project_file_name)
-
+    const { project_file_name } = _req.body
 
     const file = _req.file;
     const sanitizedCPF = sanitizeCPF(cpf);
@@ -32,25 +22,22 @@ export const aplicationRegister = controllerWrapper(
 
     if (!file) {
       console.log('error file');
-      return response.failure({ message: 'No file uploaded', status: 400 });
+      return _res.response.failure({ message: 'No file uploaded', status: 400 });
     }
 
     try {
       await uploadCandidateProject(file, cpf, _req.body, fileName);
     } catch (e) {
       console.log(e);
-      return response.failure({ message: 'No file uploaded', status: 400 });
+      return _res.response.failure({ message: 'No file uploaded', status: 400 });
     }
 
-    return res.status(200).json(
-      response.success({
-        message: 'File uploaded successfully',
-        data: {
-          // fileName: file.filename,
-          filePath: `/registration-pdf/${fileName}`,
-        },
-        status: 200,
-      })
-    );
+    _res.response.success({
+      message: 'File uploaded successfully',
+      data: {
+        filePath: `/registration-pdf/${fileName}`,
+      },
+      status: 200,
+    })
   }
 );
