@@ -3,7 +3,6 @@ import { fileUploader } from '../../controllers/file-manager';
 import { uploaderMiddleware } from '../../middlewares/mutter-uploader';
 import { fileServer } from '../../controllers/file-server';
 import { candidateFilerList } from '../../controllers/file-lister';
-// import { candidateRegister } from '../../controllers/candidate-register';
 
 const router = express.Router();
 
@@ -56,6 +55,7 @@ router.post('/v1/file-manager/upload', uploaderMiddleware, fileUploader);
  *       401:
  *         description: Credenciais inválidas
  */
+
 router.get('/v1/file-manager/pdf/:filename', fileServer);
 /**
  * @swagger

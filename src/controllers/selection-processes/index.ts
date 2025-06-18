@@ -135,48 +135,49 @@ export const createSelectionProcess = controllerWrapper(async (_req, _res) => {
 
 
 
-export const getSelectionProcessById = controllerWrapper(async (_req, _res) => {
-  const { id } = _req.params;
+// export const getSelectionProcessById = controllerWrapper(async (_req, _res) => {
+//   console.log('@@@@@@@@@@@ ID')
+//   const { id } = _req.params;
 
-  if (!AppDataSource.isInitialized) {
-    await AppDataSource.initialize();
-  }
+//   if (!AppDataSource.isInitialized) {
+//     await AppDataSource.initialize();
+//   }
 
-  try {
-    const process = await AppDataSource.query(
-      `
-      SELECT * FROM selection_processes
-      WHERE id = $1
-      `,
-      [id]
-    );
+//   try {
+//     const process = await AppDataSource.query(
+//       `
+//       SELECT * FROM selection_processes
+//       WHERE id = $1
+//       `,
+//       [id]
+//     );
 
-    if (process.length === 0) {
-      return response.failure({
-        message: 'Processo seletivo não encontrado',
-        status: 404,
-      });
-    }
+//     if (process.length === 0) {
+//       return response.failure({
+//         message: 'Processo seletivo não encontrado',
+//         status: 404,
+//       });
+//     }
 
-    // Parse documents_required back to array
-    const processData = {
-      ...process[0],
-      documents_required: process[0].documents_required || [],
-    };
+//     // Parse documents_required back to array
+//     const processData = {
+//       ...process[0],
+//       documents_required: process[0].documents_required || [],
+//     };
 
-    response.success({
-      status: 200,
-      message: 'Processo seletivo recuperado com sucesso',
-      data: processData,
-    });
-  } catch (error) {
-    console.error('Erro ao recuperar processo seletivo:', error);
-    response.failure({
-      message: 'Falha ao recuperar processo seletivo',
-      status: 500,
-    });
-  }
-});
+//     response.success({
+//       status: 200,
+//       message: 'Processo seletivo recuperado com sucesso',
+//       data: processData,
+//     });
+//   } catch (error) {
+//     console.error('Erro ao recuperar processo seletivo:', error);
+//     response.failure({
+//       message: 'Falha ao recuperar processo seletivo',
+//       status: 500,
+//     });
+//   }
+// });
 
 export const updateSelectionProcess = controllerWrapper(async (_req, _res) => {
   const { id } = _req.params;

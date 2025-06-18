@@ -31,6 +31,7 @@ import authRoutes from './routes/auth/index';
 import candidateRoutes from './routes/candidate/index';
 import fileManagerRoutes from './routes/file-manager/index';
 import selectionProcessesRoutes from './routes/selection-processes/index';
+import applicationsRoutes from './routes/applications/index';
 import swaggerRouters from './swagger';
 
 expressApp.use('/api', apiRoutes);
@@ -38,6 +39,7 @@ expressApp.use('/api', authRoutes);
 expressApp.use('/api', candidateRoutes);
 expressApp.use('/api', fileManagerRoutes);
 expressApp.use('/api', selectionProcessesRoutes);
+expressApp.use('/api', applicationsRoutes);
 expressApp.use('/api', swaggerRouters);
 
 // Use custom middlewares for handling 404 and errors

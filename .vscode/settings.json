@@ -8,8 +8,8 @@
         "editor.wordHighlightStrongBorder": "#FF6347",
         "editor.wordHighlightBorder": "#FFD700",
         "editor.selectionHighlightBorder": "#A9A9A9",
-        "activityBar.background": "#590B37",
-        "titleBar.activeBackground": "#7D0F4D",
+        "activityBar.background": "#ed6db6",
+        "titleBar.activeBackground": "#f26eb9",
         "titleBar.activeForeground": "#FFFCFD"
     }
 }

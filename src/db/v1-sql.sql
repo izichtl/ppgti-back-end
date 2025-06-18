@@ -114,9 +114,9 @@ CREATE TABLE research_lines (
 -- tema de pesquisa
 --
 CREATE TABLE research_topics (
-    id SERIAL PRIMARY KEY,
-    line_id INTEGER REFERENCES research_lines(id) ON DELETE CASCADE,
-    name VARCHAR(255) NOT NULL
+  id SERIAL PRIMARY KEY,
+  line_id INTEGER NOT NULL REFERENCES research_lines(id) ON DELETE CASCADE,
+  name VARCHAR(255) NOT NULL
 );
 
 -- inscricoes no processos
