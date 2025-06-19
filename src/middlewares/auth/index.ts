@@ -103,23 +103,23 @@ export const committeeAuthMiddleware = async (
       });
     }
 
-    if (!AppDataSource.isInitialized) {
-      await AppDataSource.initialize();
-    }
+    // if (!AppDataSource.isInitialized) {
+    //   await AppDataSource.initialize();
+    // }
 
-    const committeeUser = await AppDataSource.query(
-      `SELECT * FROM committee_members WHERE id = $1`,
-      [(user as any).id]
-    );
+    // const committeeUser = await AppDataSource.query(
+    //   `SELECT * FROM committee_members WHERE id = $1`,
+    //   [(user as any).id]
+    // );
 
-    if (!committeeUser || committeeUser.length === 0) {
-      console.log('Access denied. Committee member required.');
-      response.unauthorized({
-        message: 'Access denied. Committee member required.',
-        status: 403,
-      });
-      return;
-    }
+    // if (!committeeUser || committeeUser.length === 0) {
+    //   console.log('Access denied. Committee member required.');
+    //   response.unauthorized({
+    //     message: 'Access denied. Committee member required.',
+    //     status: 403,
+    //   });
+    //   return;
+    // }
 
     next();
   } catch (error) {
