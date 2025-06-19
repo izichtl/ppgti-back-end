@@ -1,6 +1,6 @@
 import express from 'express';
 import { candidateLogin } from '../../controllers/auth/index';
-import { candidateRegister } from '../../controllers/candidate-register';
+import { candidateRegister } from '../../controllers/create-candidate';
 import {
   committeeLogin,
   committeeRegister,

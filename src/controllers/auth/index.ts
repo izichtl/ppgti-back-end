@@ -7,6 +7,7 @@ import {
 import { handlerCommitteeLogin } from '../../models/committee-login';
 import { verifyUserExistence } from '../../models/candidate-login';
 
+// TODO SEPARAR EM CONTROLER DIFERENTES
 export type CommitteeRegisterProps = {
   email: string;
   matricula: string;
@@ -43,8 +44,6 @@ export const candidateLogin = controllerWrapper(async (_req, _res) => {
 
 export const committeeLogin = controllerWrapper(async (_req, _res) => {
   const { matricula, password } = _req.body;
-  console.log('@@@@@@@@@@@@@@@@@@@@@@@@@')
-
   const { data, error } = await handlerCommitteeLogin(matricula, password);
 
   if (error || !data) {

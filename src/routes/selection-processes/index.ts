@@ -1,15 +1,12 @@
 import express from 'express';
 import {
-  createSelectionProcessController,
-  getSelectionProcessesController,
-  // getSelectionProcessByIdController,
-  updateSelectionProcessController,
   deleteSelectionProcessController,
-} from '../../controllers/selection-processes';
+} from '../../controllers/delete-selection-process';
 import { committeeAuthMiddleware } from '../../middlewares/auth';
-// import { getSelectionProcesses } from '../../controllers/get-selection-processes/index';
-import { uploaderMiddleware } from '../../middlewares/mutter-uploader';
-import { aplicationRegister } from '../../controllers/aplication-register';
+import { getSelectionProcesses } from '../../controllers/get-selection-processes';
+import { createSelectionProcessController } from '../../controllers/create-selection-process';
+import { getSelectionProcessByIdController } from '../../controllers/get-selection-process-by-id';
+import { updateSelectionProcessController } from '../../controllers/update-selection-process';
 
 const router = express.Router();
 
@@ -238,7 +235,7 @@ router.post(
  *       500:
  *         description: Internal server error
  */
-router.get('/v1/selection-processes', getSelectionProcessesController);
+router.get('/v1/selection-processes', getSelectionProcesses);
 
 /**
  * @swagger
@@ -276,7 +273,7 @@ router.get('/v1/selection-processes', getSelectionProcessesController);
  *       500:
  *         description: Internal server error
  */
-// router.get('/v1/selection-processes/:id', getSelectionProcessById);
+router.get('/v1/selection-processes/:id', getSelectionProcessByIdController);
 
 /**
  * @swagger
@@ -425,30 +422,14 @@ router.delete(
   deleteSelectionProcessController
 );
 
-router.post('/v1/selection-processes/aplication', uploaderMiddleware, aplicationRegister);
-/**
- * @swagger
- * /v1/file-manager/pdf/:filename:
- *   post:
- *     summary: Serve o documento selecionado
- *     tags:
- *       - Auth
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *               password:
- *                 type: string
- *     responses:
- *       200:
- *         description: Login realizado com sucesso
- *       401:
- *         description: Credenciais inválidas
- */
+// /**
+//  * @swagger
+//  * /v1/selection-processes/{id}:
+//  */
+// router.delete(
+//   '/v1/selection-processes/:id',
+//   committeeAuthMiddleware,
+//   deleteSelectionProcessController
+// );
 
 export default router;

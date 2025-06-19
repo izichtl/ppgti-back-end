@@ -1,4 +1,4 @@
-import { response, ResponsePayload } from '../../middlewares/response';
+import { ResponsePayload } from '../../middlewares/response';
 import { controllerWrapper } from '../../lib/controllerWrapper';
 import { supabase } from '../../db';
 import { authGuard, getUserFromToken } from '../../middlewares/auth';
@@ -8,7 +8,7 @@ export const candidateUpdater = controllerWrapper(async (_req, _res) => {
   const token = _req.headers['authorization'];
   const guardResponse: ResponsePayload = authGuard(token as string);
   if (guardResponse.error) {
-    return response.failure(guardResponse);
+    return _res.response.failure(guardResponse);
   }
   const user = await getUserFromToken(token as string);
   const { cpf, email } = user as any;
