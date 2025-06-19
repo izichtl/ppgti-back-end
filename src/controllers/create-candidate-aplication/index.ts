@@ -1,4 +1,4 @@
-import { response, ResponsePayload } from '../../middlewares/response';
+import { ResponsePayload } from '../../middlewares/response';
 import { controllerWrapper } from '../../lib/controllerWrapper';
 import { sanitizeCPF } from '../../utils/string-format';
 import { authGuard, getUserFromToken } from '../../middlewares/auth';
@@ -6,14 +6,15 @@ import { uploadCandidateProject } from './insert-or-update';
 
 export const aplicationRegister = controllerWrapper(async (_req, _res) => {
     const token = _req.headers['authorization'];
+    
     const guardResponse: ResponsePayload = authGuard(token as string);
     if (guardResponse.error) {
-      return response.failure(guardResponse);
+      return _res.response.failure(guardResponse);
     }
     const user = await getUserFromToken(token as string);
     const { cpf } = user as any;
 
-
+    console.log(_req.body)
     const { project_file_name } = _req.body
 
     const file = _req.file;

@@ -1,6 +1,6 @@
 import express from 'express';
-import { candidateUpdater } from '../../controllers/cadidate-personal-data/indext';
-import { candidateAcademicUpdater } from '../../controllers/candidate-academic-data';
+import { candidateUpdater } from '../../controllers/create-cadidate-personal-data/indext';
+import { candidateAcademicUpdater } from '../../controllers/create-candidate-academic-data';
 import { getApplicationsByCpf } from '../../controllers/get-candidate-aplications';
 
 const router = express.Router();
