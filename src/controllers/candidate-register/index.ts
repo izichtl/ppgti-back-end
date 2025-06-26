@@ -2,7 +2,6 @@
 import { response } from '../../middlewares/response';
 import { controllerWrapper } from '../../lib/controllerWrapper';
 import { signToken } from '../../middlewares/auth/index';
-import AppDataSource, { supabase } from '../../db';
 import { sanitizeCPF } from '../../utils/string-format';
 import { verifyUserExistence } from '../../models/candidate-login';
 import e from 'express';
@@ -17,9 +16,10 @@ export interface ResponsePayload {
 
 export const candidateRegister = controllerWrapper(async (_req, _res) => {
   const { email, cpf, social_name } = _req.body;
+
   const sanitizeCPFValue = sanitizeCPF(cpf);
-  // verifica se o usuário existe
   const verifyUser = await verifyUserExistence(email, sanitizeCPFValue);
+
   if (verifyUser !== null) {
     if (verifyUser.error) {
       return response.failure(verifyUser);

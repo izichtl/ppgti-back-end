@@ -4,7 +4,7 @@ import type { Request, Response, NextFunction } from 'express';
 import { JWT_SECRET } from '../../config';
 import { response, ResponsePayload } from '../response';
 import { getUserFromToken, authGuard } from './index';
-import AppDataSource from '../../db';
+import { supabase } from '../../db';
 
 export interface User {
   id: number;
@@ -82,19 +82,13 @@ export const committeeAuthMiddleware = async (
   try {
     const token = _req.headers['authorization'];
 
-    console.log('token', token);
-
     const guardResponse: ResponsePayload = authGuard(token as string);
-
-    console.log('guardResponse', guardResponse);
 
     if (guardResponse.error) {
       return response.unauthorized(guardResponse);
     }
 
     const user = await getUserFromToken(token as string);
-
-    console.log('user', user);
 
     if (!user) {
       return response.unauthorized({
@@ -103,17 +97,13 @@ export const committeeAuthMiddleware = async (
       });
     }
 
-    if (!AppDataSource.isInitialized) {
-      await AppDataSource.initialize();
-    }
+    const { data: committeeUser, error } = await supabase
+      .from('committee_members')
+      .select('*')
+      .eq('id', user.id)
+      .single();
 
-    const committeeUser = await AppDataSource.query(
-      `SELECT * FROM committee_members WHERE id = $1`,
-      [(user as any).id]
-    );
-
-    if (!committeeUser || committeeUser.length === 0) {
-      console.log('Access denied. Committee member required.');
+    if (error || !committeeUser) {
       response.unauthorized({
         message: 'Access denied. Committee member required.',
         status: 403,
@@ -123,7 +113,6 @@ export const committeeAuthMiddleware = async (
 
     next();
   } catch (error) {
-    console.error('Committee auth middleware error:', error);
     response.failure({
       message: 'Authentication failed',
       status: 500,
