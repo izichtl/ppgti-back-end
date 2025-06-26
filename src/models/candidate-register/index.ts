@@ -11,7 +11,7 @@ export const handlerCadidateRegister = async (
   email: string,
   cpf: string,
   social_name: string
-) => {
+): Promise<CandidateLoginResponse>  => {
   const { data, error } = await supabase
     .from('candidates')
     .insert([
@@ -23,7 +23,7 @@ export const handlerCadidateRegister = async (
       },
     ])
     .select();
-  console.log(error, data);
+
   if (error !== null) {
     const { code } = error;
     if (code === '23505') {
