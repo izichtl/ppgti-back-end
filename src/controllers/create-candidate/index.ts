@@ -1,4 +1,3 @@
-// @ts-nocheck
 // TODO AJUSTAR FUNCAO DE RETORNO DO MODEL
 import { controllerWrapper } from '../../lib/controllerWrapper';
 import { sanitizeCPF } from '../../utils/string-format';
@@ -12,10 +11,12 @@ export const candidateRegister = controllerWrapper(async (_req, _res) => {
 
   // verifica se o usuário existe
   const verifyUser = await verifyUserExistence(email, sanitizeCPFValue);
+
   if (verifyUser !== null) {
-    if (verifyUser.error) {
+    if (verifyUser.error && verifyUser.message !== 'User not found') {
       return _res.response.failure(verifyUser);
-    } else {
+    }
+    if (!verifyUser.error) {
       return _res.response.success(verifyUser);
     }
   }
