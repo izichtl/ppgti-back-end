@@ -1,5 +1,6 @@
 import { supabase } from '../../db';
 import { signToken } from '../../middlewares/auth';
+import { hashPassword } from '../../utils/password';
 
 interface CommitteeLoginResponse {
   error: boolean;
@@ -15,11 +16,13 @@ export const handlerCommitteeLogin = async (
   matricula: string,
   password: string
 ): Promise<CommitteeLoginResponse> => {
+  const hashedPassword = hashPassword(password);
+
   const { data, error } = await supabase
     .from('committee_members')
     .select('*')
     .eq('if_registration', matricula)
-    .eq('password', password)
+    .eq('password', hashedPassword)
     .maybeSingle();
 
   if (error !== null) {
@@ -30,22 +33,23 @@ export const handlerCommitteeLogin = async (
     };
   }
 
-  if (data !== null) {
-    const token = await signToken(data);
+  if (data === null) {
     return {
-      error: false,
-      message: 'Committee member authenticated successfully',
-      status: 200,
-      data: {
-        token,
-        islogin: true,
-      },
+      error: true,
+      message: 'Invalid credentials',
+      status: 401,
     };
   }
 
+  const token = await signToken(data);
+
   return {
-    error: true,
-    message: 'Invalid credentials',
-    status: 401,
+    error: false,
+    message: 'Committee member authenticated successfully',
+    status: 200,
+    data: {
+      token,
+      islogin: true,
+    },
   };
 };

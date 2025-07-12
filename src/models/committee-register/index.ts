@@ -1,6 +1,7 @@
 import { ResponsePayload } from '../../middlewares/response';
 import { supabase } from '../../db';
 import { signToken } from '../../middlewares/auth';
+import { hashPassword } from '../../utils/password';
 
 export const verifyCommitteeExistence = async (
   email: string,
@@ -32,6 +33,8 @@ export const handlerCommitteeRegister = async (
   cpf: string,
   password: string
 ): Promise<ResponsePayload | null> => {
+  const hashedPassword = hashPassword(password);
+
   const { data, error } = await supabase
     .from('committee_members')
     .insert([
@@ -40,7 +43,7 @@ export const handlerCommitteeRegister = async (
         if_registration: matricula,
         name: name,
         cpf: cpf,
-        password: password,
+        password: hashedPassword,
       },
     ])
     .select();
