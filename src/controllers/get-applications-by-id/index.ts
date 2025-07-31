@@ -1,6 +1,6 @@
 import { ResponsePayload } from '../../middlewares/response';
 import { controllerWrapper } from '../../lib/controllerWrapper';
-import { authGuard } from '../../middlewares/auth/index';
+import { authGuard, getUserFromToken } from '../../middlewares/auth/index';
 import { getAplicationDataById } from '../../models/application-by-process-id';
 
 export const getApplicationById = controllerWrapper(async (_req, _res) => {
@@ -9,6 +9,10 @@ export const getApplicationById = controllerWrapper(async (_req, _res) => {
   if (guardResponse.error) {
     return _res.response.failure(guardResponse);
   }
+
+    const user = await getUserFromToken(token as string);
+  // const { cpf, email } = user as any;
+  console.log(user)
 
   const application_id = _req.query.application_id;
 
