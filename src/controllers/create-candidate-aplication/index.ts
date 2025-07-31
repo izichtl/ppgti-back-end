@@ -14,7 +14,6 @@ export const aplicationRegister = controllerWrapper(async (_req, _res) => {
     const user = await getUserFromToken(token as string);
     const { cpf } = user as any;
 
-    console.log(_req.body)
     const { project_file_name } = _req.body
 
     const file = _req.file;

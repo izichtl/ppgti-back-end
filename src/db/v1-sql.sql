@@ -153,6 +153,25 @@ CREATE TABLE applications_verification (
     final_status VARCHAR(50) -- Homologado, Recusado
 );
 
+CREATE TABLE applications_verification (
+    id SERIAL PRIMARY KEY,
+    application_id INTEGER REFERENCES applications(id) ON DELETE CASCADE,
+    process_id INTEGER REFERENCES selection_processes(id) ON DELETE CASCADE,
+    
+    -- academic_data_verified BOOLEAN DEFAULT FALSE,
+    -- score_form_verified BOOLEAN DEFAULT FALSE,
+    -- diploma_certificate_verified BOOLEAN DEFAULT FALSE,
+    -- undergraduate_transcript_verified BOOLEAN DEFAULT FALSE,
+    -- electoral_clearance_verified BOOLEAN DEFAULT FALSE,
+    -- proof_of_residence_verified BOOLEAN DEFAULT FALSE,
+    -- military_clearance_verified BOOLEAN DEFAULT FALSE,
+    -- quota_declaration_admission_verified BOOLEAN DEFAULT FALSE,
+    -- quota_declaration_if_verified BOOLEAN DEFAULT FALSE,
+    -- registration_clearance_verified BOOLEAN DEFAULT FALSE,
+    
+    final_status VARCHAR(50) -- Homologado, Recusado
+);
+
 
 -- 1. Criar a tabela quotas
 CREATE TABLE quotas (

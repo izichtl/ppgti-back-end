@@ -1,7 +1,7 @@
 import { supabase } from '../db/index';
 
 const supabaseSignedUrl = async (filePath: string): Promise<string | null> => {
-  const time = 60 * 60;
+  const time = 60 * 60 * 2;
   try {
     const { data, error } = await supabase.storage
       .from('registration-pdf')

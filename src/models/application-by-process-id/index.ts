@@ -3,30 +3,32 @@ import { ResponsePayload } from "../../middlewares/response";
 import supabaseSignedUrl from "../../storage";
 
 export const getAplicationDataProcessId = async (id: number): Promise<ResponsePayload> => {
-
-  const { data: process, error } = await supabase
-    .from('selection_processes')
-    .select(`
+const { data: process, error } = await supabase
+  .from('selection_processes')
+  .select(`
+    *,
+    applications (
       *,
-      applications (
-        *,
-        candidates (
-          id,
-          name,
-          email,
-          cpf
-        ),
-        research_lines (
-          *
-        ),
-        research_topics (
-          *
-        )
+      candidates (
+        id,
+        name,
+        email,
+        cpf
+      ),
+      research_lines (
+        *
+      ),
+      research_topics (
+        *
+      ),
+      applications_verification!left (
+      *
       )
-    `)
-    .eq('id', id)
-    .single();
-
+    )
+  `)
+  .eq('id', id)
+  .single();
+    console.log(error)
   if (error !== null) {
     return {
       error: true,
