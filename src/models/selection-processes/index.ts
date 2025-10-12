@@ -312,12 +312,20 @@ export const deleteSelectionProcess = async (
       .from('selection_processes')
       .delete()
       .eq('id', id);
-
+      
     if (deleteError) {
+      if (deleteError.code === '23503') {
+        return {
+          error: true,
+          message: 'Não é possível excluir este processo seletivo pois existem candidaturas associadas.',
+          status: 400,
+        };
+      }
+    
       console.error('Erro ao excluir processo seletivo:', deleteError);
       return {
         error: true,
-        message: 'Falha ao excluir processo seletivo',
+        message: 'Falha ao excluir processo seletivo.',
         status: 500,
       };
     }
@@ -327,11 +335,12 @@ export const deleteSelectionProcess = async (
       message: 'Processo seletivo excluído com sucesso',
       status: 200,
     };
+
   } catch (error) {
     console.error('Erro ao excluir processo seletivo:', error);
     return {
       error: true,
-      message: 'Falha ao excluir processo seletivo',
+      message: 'Falha ao excluir processo seletivo2',
       status: 500,
     };
   }

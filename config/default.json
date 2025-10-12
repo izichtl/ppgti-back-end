@@ -1,6 +1,6 @@
 {
-  "serviceName": "express-ts-boilerplate",
+  "serviceName": "ppgti-register-api",
   "serviceUrl": "",
-  "timezone": "Asia/Kolkata",
+  "timezone": "America/Fortaleza",
   "logDir": "/var/log/express-app"
 }

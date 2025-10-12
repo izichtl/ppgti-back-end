@@ -25,13 +25,29 @@ export const uploadCandidateProject = async (
 
   const candidate_id = candidateData.id;
 
+  const { data: registeredTopics, error: registeredError } = await supabase
+    .from('applications')
+    .select('topic_id')
+    .eq('candidate_id', candidate_id);
+
+  const topics = [
+    { topic_id: Number(formData.research_topic_id) },
+    ...registeredTopics!,
+  ];
+  const uniqueTopics = new Set(topics.map((app) => app.topic_id));
+  const reachedLimit = uniqueTopics.size > 2;
+
+  if (registeredError || reachedLimit) {
+    // throw new Error('Candidato não pode se inscrever em mais de dois temas.');
+  }
+
   const applicationData = {
     candidate_id,
     process_id: formData.process_id,
     line_id: formData.research_line_id,
     topic_id: formData.research_topic_id,
     project_title: formData.project_title,
-    project_path: data!.path
+    project_path: data!.path,
   };
 
   const { data: inserted, error: insertError } = await supabase

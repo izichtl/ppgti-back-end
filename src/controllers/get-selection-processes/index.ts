@@ -1,19 +1,16 @@
-
 import { ResponsePayload } from '../../middlewares/response';
 import { controllerWrapper } from '../../lib/controllerWrapper';
 import { supabase } from '../../db';
 import { authGuard } from '../../middlewares/auth/index';
 
 export const getSelectionProcesses = controllerWrapper(async (_req, _res) => {
-	const token = _req.headers['authorization'];
+  const token = _req.headers['authorization'];
   const guardResponse: ResponsePayload = authGuard(token as string);
   if (guardResponse.error) {
     return _res.response.failure(guardResponse);
   }
 
-	const { data, error } = await supabase
-    .from('selection_processes')
-    .select(`
+  const { data, error } = await supabase.from('selection_processes').select(`
      *,
       research_lines (
        *,
@@ -23,14 +20,14 @@ export const getSelectionProcesses = controllerWrapper(async (_req, _res) => {
       )
   `);
 
-	if(error !== null) {
-		_res.response.failure({
+  if (error !== null) {
+    _res.response.failure({
       message: 'Falha ao recuperar processos seletivos',
       status: 500,
     });
-	}
+  }
 
-	const processesWithParsedDocs = data?.map((process: any) => ({
+  const processesWithParsedDocs = data?.map((process: any) => ({
     ...process,
     documents_required: process.documents_required || [],
   }));
@@ -40,5 +37,4 @@ export const getSelectionProcesses = controllerWrapper(async (_req, _res) => {
     message: 'Processos seletivos recuperados com sucesso',
     data: processesWithParsedDocs,
   });
-
 });

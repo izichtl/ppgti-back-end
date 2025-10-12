@@ -1,3 +1,4 @@
+// @ts-expect-error
 import VError from "verror";
 import winstonLogger from "./winstonLogger";
 const logData = (logObject: unknown, logLevel = "info") => {
