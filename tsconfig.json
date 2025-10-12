@@ -15,7 +15,9 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "module": "NodeNext",
-    "moduleResolution": "NodeNext"
+    "moduleResolution": "NodeNext",
+    "typeRoots": ["./node_modules/@types", "./src/types"]
+
   },
   "include": ["./*.js", "src/**/*.ts"],
   "exclude": ["test/*.ts", "./api/*.ts", "node_modules", "**/*.test.ts"]

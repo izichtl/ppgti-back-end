@@ -1,7 +1,12 @@
 import { supabase } from "../../db";
 import { ResponsePayload } from '../../middlewares/response';
+import { Application } from "../../utils/applications-outdate-filter";
 
-export const handlerCandidateApplications = async (cpf: string): Promise<ResponsePayload> => {
+export interface ApplicationsResponse extends Omit<ResponsePayload, 'data'> {
+  data?: Application[];
+}
+
+export const handlerCandidateApplications = async (cpf: string): Promise<ApplicationsResponse> => {
   
   const { data: candidate, error: candidateError } = await supabase
     .from('candidates')

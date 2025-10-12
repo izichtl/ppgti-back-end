@@ -3,7 +3,7 @@ import winston from "winston";
 import WinstonDailyRotateFile from "winston-daily-rotate-file";
 import config from "config";
 const serviceName: string = config.get("serviceName");
-const correlationIdHeader: string = config.get("headers.correlationId");
+// const correlationIdHeader: string = config.get("headers.correlationId");
 const winstonTransportConfig = {
 	consoleConfig: {
 		level: "debug",
@@ -19,7 +19,7 @@ const winstonTransportConfig = {
 		handleExceptions: true,
 	},
 };
-const timestampFormat = winston.format((info, opts) => {
+const timestampFormat = winston.format((info, opts: any) => {
 	if (opts.zone) {
 		info.timestamp = DateTime.now().setZone(opts.zone).toISO();
 	}
